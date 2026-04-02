@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registo de devoluções do online</title>
+  <meta name="description" content="Aplicação interna para registo de devoluções do online com Firebase Firestore e Storage, sem login." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f1efe9; --color-border: #d6d2cb; --color-divider: #e2dfd8;
+      --color-text: #2b2924; --color-text-muted: #706d66; --color-text-faint: #a19d96; --color-text-inverse: #fbfaf7;
+      --color-primary: #0b6b70; --color-primary-hover: #0c4f53; --color-primary-highlight: #d8e6e4; --color-success: #4d7b2f; --color-warning: #9d5a1d; --color-error: #9a356f;
+      --radius-sm: .5rem; --radius-md: .75rem; --radius-lg: 1rem; --radius-xl: 1.25rem; --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px rgba(43, 41, 36, .06); --shadow-md: 0 10px 28px rgba(43, 41, 36, .08); --transition: 180ms cubic-bezier(.16, 1, .3, 1);
+      --font-body: 'Montserrat', sans-serif;
+    }
+    [data-theme="dark"] {
+      --color-bg: #171614; --color-surface: #1d1b19; --color-surface-2: #201f1d; --color-surface-offset: #262320; --color-border: #3a3733; --color-divider: #2c2926;
+      --color-text: #e5e1da; --color-text-muted: #b5b1aa; --color-text-faint: #88847d; --color-text-inverse: #171614;
+      --color-primary: #59a5ae; --color-primary-hover: #7abdc6; --color-primary-highlight: rgba(89,165,174,.16); --color-success: #7fb55d; --color-warning: #d29063; --color-error: #d36dab;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.22); --shadow-md: 0 12px 30px rgba(0,0,0,.36);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { min-height: 100vh; font-family: var(--font-body); background: linear-gradient(180deg, var(--color-bg), var(--color-surface-offset)); color: var(--color-text); font-size: var(--text-base); }
+    button, input, select, textarea { font: inherit; }
+    img, svg { display: block; max-width: 100%; }
+    .hidden { display: none !important; }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 300px 1fr; }
+    .sidebar { position: sticky; top: 0; height: 100vh; padding: var(--space-6); border-right: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-surface) 88%, transparent); backdrop-filter: blur(12px); display: flex; flex-direction: column; gap: var(--space-6); }
+    .brand { display: flex; align-items: center; gap: var(--space-3); }
+    .brand-mark { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--color-primary-highlight); color: var(--color-primary); }
+    .brand strong { display: block; }
+    .brand span { color: var(--color-text-muted); font-size: var(--text-xs); }
+    .nav { display: grid; gap: var(--space-2); }
+    .nav button { text-align: left; padding: .95rem 1rem; border-radius: var(--radius-lg); border: 1px solid transparent; background: transparent; color: var(--color-text); font-weight: 600; cursor: pointer; }
+    .nav button.active { background: var(--color-primary); color: var(--color-text-inverse); }
+    .panel { border: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-surface) 92%, transparent); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
+    .sidebar-note { margin-top: auto; padding: var(--space-4); color: var(--color-text-muted); font-size: var(--text-sm); }
+    .main { padding: var(--space-6); display: grid; gap: var(--space-5); }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+    .topbar h1 { margin: 0; font-size: var(--text-xl); letter-spacing: -.03em; }
+    .topbar p { margin: .35rem 0 0; color: var(--color-text-muted); }
+    .actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+    .button { border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); border-radius: var(--radius-md); padding: .85rem 1rem; font-size: var(--text-sm); font-weight: 700; cursor: pointer; transition: transform var(--transition), background var(--transition), border-color var(--transition); }
+    .button:hover { transform: translateY(-1px); }
+    .button.primary { background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary); }
+    .button.ghost { background: transparent; }
+    .button.success { background: color-mix(in srgb, var(--color-success) 12%, var(--color-surface)); color: var(--color-success); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+    .metric { padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface-2); }
+    .metric span { display: block; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .45rem; }
+    .metric strong { font-size: var(--text-lg); font-variant-numeric: tabular-nums; }
+    .layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--space-4); }
+    .card { padding: var(--space-5); }
+    .section-title { margin: 0 0 var(--space-3); font-size: var(--text-lg); letter-spacing: -.02em; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4); }
+    .small, .muted { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+    .field { display: grid; gap: var(--space-2); }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: var(--text-sm); font-weight: 700; }
+    .field small { font-size: var(--text-xs); color: var(--color-text-muted); }
+    input, select, textarea { width: 100%; padding: .95rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: var(--color-surface-2); color: var(--color-text); outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 15%, transparent); }
+    textarea { resize: vertical; min-height: 110px; }
+    .badge { display: inline-flex; align-items: center; padding: .35rem .7rem; border-radius: var(--radius-full); background: var(--color-primary-highlight); color: var(--color-primary); font-size: var(--text-xs); font-weight: 700; }
+    .preview-box { border: 1px dashed var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); background: var(--color-surface-2); display: grid; gap: var(--space-3); }
+    .preview-box img { width: 100%; max-height: 240px; object-fit: cover; border-radius: var(--radius-md); }
+    .notice { padding: .95rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface-2); font-size: var(--text-sm); }
+    .notice.success { color: var(--color-success); background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface)); }
+    .notice.error { color: var(--color-error); background: color-mix(in srgb, var(--color-error) 10%, var(--color-surface)); }
+    .table-wrap { overflow: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+    table { width: 100%; min-width: 920px; border-collapse: collapse; }
+    th, td { padding: .9rem 1rem; border-bottom: 1px solid var(--color-divider); text-align: left; vertical-align: top; font-size: var(--text-sm); }
+    th { background: var(--color-surface-offset); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: .08em; font-size: var(--text-xs); }
+    .status-pill { display: inline-flex; align-items: center; padding: .3rem .7rem; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 700; }
+    .status-pill.success { background: color-mix(in srgb, var(--color-success) 14%, var(--color-surface)); color: var(--color-success); }
+    .status-pill.pending { background: color-mix(in srgb, var(--color-warning) 14%, var(--color-surface)); color: var(--color-warning); }
+    .empty { padding: var(--space-8); text-align: center; color: var(--color-text-muted); border: 1px dashed var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface-2); }
+    .tabs-section.hidden { display: none !important; }
+    .mobile-menu { display: none; }
+    @media (max-width: 1100px) { .metrics { grid-template-columns: repeat(2, 1fr); } .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 920px) { .shell { grid-template-columns: 1fr; } .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: min(86vw, 320px); transform: translateX(-100%); transition: transform var(--transition); z-index: 20; } .sidebar.open { transform: translateX(0); } .mobile-menu { display: inline-flex; } }
+    @media (max-width: 720px) { .main { padding: var(--space-4); } .form-grid, .metrics { grid-template-columns: 1fr; } .card { padding: var(--space-4); } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 48 48" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo da aplicação">
+            <rect x="8" y="8" width="32" height="32" rx="10" stroke="currentColor" stroke-width="3"/>
+            <path d="M17 24H31" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M24 17V31" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Registo de devoluções do online</strong>
+          <span>App interna sem login</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="active" data-tab="registos">Devoluções</button>
+        <button data-tab="transferencias">Transferências</button>
+        <button data-tab="config">Configuração</button>
+      </nav>
+
+      <div class="panel sidebar-note">
+        App simplificada para utilização direta no balcão ou backoffice, sem autenticação, mantendo Firestore e Storage.
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Registo de devoluções do online</h1>
+          <p>Versão simplificada sem utilizadores e sem login, pronta para Firebase e GitHub Pages.</p>
+        </div>
+        <div class="actions">
+          <button class="button ghost mobile-menu" id="mobileMenuBtn">Menu</button>
+          <button class="button ghost" id="themeToggle">Tema</button>
+          <button class="button" id="exportCsvBtn">Exportar CSV</button>
+        </div>
+      </header>
+
+      <div id="appMessage" class="hidden"></div>
+
+      <section class="metrics">
+        <div class="metric"><span>Total devoluções</span><strong id="kpiTotal">0</strong></div>
+        <div class="metric"><span>Valor devolvido</span><strong id="kpiValor">0,00 €</strong></div>
+        <div class="metric"><span>Transferências</span><strong id="kpiTransferencias">0</strong></div>
+        <div class="metric"><span>Pendentes</span><strong id="kpiPendentes">0</strong></div>
+      </section>
+
+      <section id="section-registos" class="tabs-section">
+        <div class="layout">
+          <article class="panel card">
+            <div class="toolbar">
+              <h2 class="section-title">Nova devolução</h2>
+              <span class="badge">Firestore + Storage</span>
+            </div>
+            <form id="refundForm">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="colaboradorNumero">Colaborador que faz a devolução</label>
+                  <input id="colaboradorNumero" type="number" inputmode="numeric" min="1" required>
+                  <small>Código numérico do colaborador.</small>
+                </div>
+                <div class="field">
+                  <label for="dataDevolucao">Data da devolução</label>
+                  <input id="dataDevolucao" type="date" required>
+                </div>
+                <div class="field">
+                  <label for="numeroEncomenda">Nº da encomenda online</label>
+                  <input id="numeroEncomenda" type="number" inputmode="numeric" min="1" required>
+                </div>
+                <div class="field">
+                  <label for="valorDevolvido">Valor devolvido (€)</label>
+                  <input id="valorDevolvido" type="number" step="0.01" min="0" required>
+                </div>
+                <div class="field full">
+                  <label for="metodoDevolucao">Método de devolução</label>
+                  <select id="metodoDevolucao" required>
+                    <option value="">Selecionar método</option>
+                    <option value="Numerário">Numerário</option>
+                    <option value="MBway">MBway (telemóvel)</option>
+                    <option value="Finanfarma">Finanfarma</option>
+                    <option value="Transferência Bancária">Trans. Bancária</option>
+                    <option value="Outros">Outros</option>
+                  </select>
+                </div>
+                <div class="field full hidden" id="outrosField">
+                  <label for="outrosDescricao">Outros (descriminar)</label>
+                  <textarea id="outrosDescricao" placeholder="Descreva o método utilizado"></textarea>
+                </div>
+                <div class="field full">
+                  <label for="comprovativo">Comprovativo (imagem)</label>
+                  <input id="comprovativo" type="file" accept="image/*">
+                  <small>O comprovativo é guardado no Firebase Storage, na cloud da Google.</small>
+                </div>
+              </div>
+              <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1rem;">
+                <button class="button primary" id="saveRefundBtn" type="submit">Guardar devolução</button>
+                <button class="button" type="reset">Limpar</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel card">
+            <h2 class="section-title">Pré-visualização</h2>
+            <div class="preview-box" id="imagePreviewBox">
+              <div class="badge">Comprovativo</div>
+              <div class="muted">Ainda sem imagem selecionada</div>
+            </div>
+            <div class="preview-box" style="margin-top:1rem;">
+              <div class="badge">Automação</div>
+              <div class="muted">Quando o método for transferência bancária, a app cria automaticamente o respetivo registo no separador de transferências com estado pendente.</div>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel card">
+          <div class="toolbar">
+            <div>
+              <h2 class="section-title">Histórico de devoluções</h2>
+              <div class="small">Consulta em tempo real e pesquisa por encomenda, colaborador ou método.</div>
+            </div>
+            <input id="searchRefunds" type="search" placeholder="Pesquisar" style="max-width:320px;">
+          </div>
+          <div id="refundsContainer" class="empty">Ainda não existem devoluções registadas.</div>
+        </article>
+      </section>
+
+      <section id="section-transferencias" class="tabs-section hidden">
+        <article class="panel card">
+          <div class="toolbar">
+            <div>
+              <h2 class="section-title">Transferências bancárias</h2>
+              <div class="small">Controlo simples de recebido / não recebido.</div>
+            </div>
+          </div>
+          <div id="transfersContainer" class="empty">Ainda não existem transferências bancárias.</div>
+        </article>
+      </section>
+
+      <section id="section-config" class="tabs-section hidden">
+        <article class="panel card">
+          <h2 class="section-title">Configuração Firebase já incluída</h2>
+          <div class="notice">A app já inclui a configuração do projeto <strong>devol-online</strong>. Está preparada para usar Firestore e Storage sem autenticação, tal como pediu.</div>
+          <div class="preview-box" style="margin-top:1rem;">
+            <div><strong>Projeto:</strong> devol-online</div>
+            <div><strong>Base de dados:</strong> Cloud Firestore</div>
+            <div><strong>Ficheiros:</strong> Firebase Storage</div>
+            <div><strong>Deploy:</strong> GitHub Pages</div>
+          </div>
+          <div class="preview-box" style="margin-top:1rem;">
+            <strong>Atenção importante</strong>
+            <div class="muted">Como não quer login, as regras do Firebase terão de ser abertas ao vosso caso de uso. Para produção, isso exige cuidado extra, porque qualquer pessoa com o link pode potencialmente escrever dados se as regras estiverem totalmente abertas.</div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      doc,
+      updateDoc,
+      query,
+      orderBy,
+      onSnapshot,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      getStorage,
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtROUYStFmWkfHeCkyAQkFU_6-rnHyWzc",
+      authDomain: "devol-online.firebaseapp.com",
+      projectId: "devol-online",
+      storageBucket: "devol-online.firebasestorage.app",
+      messagingSenderId: "190776212046",
+      appId: "1:190776212046:web:7a9ddd9fa284d11df5a11f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let refundsCache = [];
+    let transfersCache = [];
+
+    const el = {
+      sidebar: document.getElementById('sidebar'),
+      mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+      themeToggle: document.getElementById('themeToggle'),
+      appMessage: document.getElementById('appMessage'),
+      refundForm: document.getElementById('refundForm'),
+      colaboradorNumero: document.getElementById('colaboradorNumero'),
+      dataDevolucao: document.getElementById('dataDevolucao'),
+      numeroEncomenda: document.getElementById('numeroEncomenda'),
+      valorDevolvido: document.getElementById('valorDevolvido'),
+      metodoDevolucao: document.getElementById('metodoDevolucao'),
+      outrosField: document.getElementById('outrosField'),
+      outrosDescricao: document.getElementById('outrosDescricao'),
+      comprovativo: document.getElementById('comprovativo'),
+      imagePreviewBox: document.getElementById('imagePreviewBox'),
+      saveRefundBtn: document.getElementById('saveRefundBtn'),
+      refundsContainer: document.getElementById('refundsContainer'),
+      transfersContainer: document.getElementById('transfersContainer'),
+      searchRefunds: document.getElementById('searchRefunds'),
+      exportCsvBtn: document.getElementById('exportCsvBtn'),
+      kpiTotal: document.getElementById('kpiTotal'),
+      kpiValor: document.getElementById('kpiValor'),
+      kpiTransferencias: document.getElementById('kpiTransferencias'),
+      kpiPendentes: document.getElementById('kpiPendentes')
+    };
+
+    document.querySelectorAll('.nav button[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav button[data-tab]').forEach(x => x.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tabs-section').forEach(section => section.classList.add('hidden'));
+        document.getElementById(`section-${btn.dataset.tab}`).classList.remove('hidden');
+        el.sidebar.classList.remove('open');
+      });
+    });
+
+    el.mobileMenuBtn.addEventListener('click', () => el.sidebar.classList.toggle('open'));
+
+    let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    el.themeToggle.addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    });
+
+    el.metodoDevolucao.addEventListener('change', () => {
+      const isOutros = el.metodoDevolucao.value === 'Outros';
+      el.outrosField.classList.toggle('hidden', !isOutros);
+      el.outrosDescricao.required = isOutros;
+    });
+
+    el.comprovativo.addEventListener('change', previewImage);
+    el.refundForm.addEventListener('submit', handleRefundSubmit);
+    el.searchRefunds.addEventListener('input', renderRefunds);
+    el.exportCsvBtn.addEventListener('click', exportRefundsCsv);
+    el.dataDevolucao.value = new Date().toISOString().slice(0, 10);
+
+    bindRealtimeData();
+
+    function bindRealtimeData() {
+      const refundsQuery = query(collection(db, 'devolucoes_online'), orderBy('createdAt', 'desc'));
+      const transfersQuery = query(collection(db, 'transferencias_bancarias'), orderBy('createdAt', 'desc'));
+
+      onSnapshot(refundsQuery, snap => {
+        refundsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderRefunds();
+        updateKpis();
+      }, error => showAppMessage(error.message, 'error'));
+
+      onSnapshot(transfersQuery, snap => {
+        transfersCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderTransfers();
+        updateKpis();
+      }, error => showAppMessage(error.message, 'error'));
+    }
+
+    async function handleRefundSubmit(e) {
+      e.preventDefault();
+      const metodo = el.metodoDevolucao.value;
+      const file = el.comprovativo.files[0] || null;
+      const payload = {
+        colaboradorNumero: Number(el.colaboradorNumero.value),
+        dataDevolucao: el.dataDevolucao.value,
+        numeroEncomenda: Number(el.numeroEncomenda.value),
+        valorDevolvido: Number(el.valorDevolvido.value),
+        metodoDevolucao: metodo,
+        outrosDescricao: metodo === 'Outros' ? el.outrosDescricao.value.trim() : '',
+        comprovativoUrl: '',
+        comprovativoPath: '',
+        createdAt: serverTimestamp()
+      };
+
+      if (!payload.colaboradorNumero || !payload.numeroEncomenda || !payload.dataDevolucao || !payload.metodoDevolucao) {
+        showAppMessage('Preencha todos os campos obrigatórios.', 'error');
+        return;
+      }
+      if (metodo === 'Outros' && !payload.outrosDescricao) {
+        showAppMessage('Descreva o método quando escolher Outros.', 'error');
+        return;
+      }
+
+      el.saveRefundBtn.disabled = true;
+      el.saveRefundBtn.textContent = 'A guardar...';
+
+      try {
+        if (file) {
+          const now = new Date();
+          const path = `comprovativos_devolucoes/${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${Date.now()}_${sanitizeFileName(file.name)}`;
+          const fileRef = ref(storage, path);
+          await uploadBytes(fileRef, file);
+          payload.comprovativoUrl = await getDownloadURL(fileRef);
+          payload.comprovativoPath = path;
+        }
+
+        const refundRef = await addDoc(collection(db, 'devolucoes_online'), payload);
+
+        if (payload.metodoDevolucao === 'Transferência Bancária') {
+          await addDoc(collection(db, 'transferencias_bancarias'), {
+            refundId: refundRef.id,
+            dataDevolucao: payload.dataDevolucao,
+            valor: payload.valorDevolvido,
+            recebido: false,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        }
+
+        el.refundForm.reset();
+        el.dataDevolucao.value = new Date().toISOString().slice(0, 10);
+        el.outrosField.classList.add('hidden');
+        el.imagePreviewBox.innerHTML = '<div class="badge">Comprovativo</div><div class="muted">Ainda sem imagem selecionada</div>';
+        showAppMessage('Devolução registada com sucesso.', 'success');
+      } catch (error) {
+        showAppMessage(error.message, 'error');
+      } finally {
+        el.saveRefundBtn.disabled = false;
+        el.saveRefundBtn.textContent = 'Guardar devolução';
+      }
+    }
+
+    function renderRefunds() {
+      const term = el.searchRefunds.value.trim().toLowerCase();
+      const data = refundsCache.filter(item => {
+        if (!term) return true;
+        const hay = `${item.numeroEncomenda ?? ''} ${item.colaboradorNumero ?? ''} ${item.metodoDevolucao ?? ''}`.toLowerCase();
+        return hay.includes(term);
+      });
+
+      if (!data.length) {
+        el.refundsContainer.className = 'empty';
+        el.refundsContainer.textContent = term ? 'Sem resultados para a pesquisa.' : 'Ainda não existem devoluções registadas.';
+        return;
+      }
+
+      el.refundsContainer.className = 'table-wrap';
+      el.refundsContainer.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Encomenda</th>
+              <th>Data</th>
+              <th>Colaborador</th>
+              <th>Valor</th>
+              <th>Método</th>
+              <th>Comprovativo</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(item => {
+              const proof = item.comprovativoUrl ? `<a class="button" href="${item.comprovativoUrl}" target="_blank" rel="noopener noreferrer">Abrir</a>` : '<span class="small">Sem imagem</span>';
+              const outros = item.metodoDevolucao === 'Outros' && item.outrosDescricao ? `<div class="small">${escapeHtml(item.outrosDescricao)}</div>` : '';
+              return `
+                <tr>
+                  <td>#${item.numeroEncomenda ?? '-'}</td>
+                  <td>${formatDate(item.dataDevolucao)}</td>
+                  <td>${item.colaboradorNumero ?? '-'}</td>
+                  <td>${formatCurrency(item.valorDevolvido)}</td>
+                  <td><span class="badge">${escapeHtml(item.metodoDevolucao || '-')}</span>${outros}</td>
+                  <td>${proof}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderTransfers() {
+      if (!transfersCache.length) {
+        el.transfersContainer.className = 'empty';
+        el.transfersContainer.textContent = 'Ainda não existem transferências bancárias.';
+        return;
+      }
+
+      el.transfersContainer.className = 'table-wrap';
+      el.transfersContainer.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Data da devolução</th>
+              <th>Valor</th>
+              <th>Estado</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${transfersCache.map(item => `
+              <tr>
+                <td>${formatDate(item.dataDevolucao)}</td>
+                <td>${formatCurrency(item.valor)}</td>
+                <td><span class="status-pill ${item.recebido ? 'success' : 'pending'}">${item.recebido ? 'Recebido' : 'Não recebido'}</span></td>
+                <td><button class="button ${item.recebido ? '' : 'success'}" data-transfer-id="${item.id}" data-next="${item.recebido ? 'false' : 'true'}">${item.recebido ? 'Marcar como não recebido' : 'Marcar como recebido'}</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      el.transfersContainer.querySelectorAll('[data-transfer-id]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          try {
+            await updateDoc(doc(db, 'transferencias_bancarias', btn.dataset.transferId), {
+              recebido: btn.dataset.next === 'true',
+              updatedAt: serverTimestamp()
+            });
+            showAppMessage('Estado da transferência atualizado.', 'success');
+          } catch (error) {
+            showAppMessage(error.message, 'error');
+          }
+        });
+      });
+    }
+
+    function updateKpis() {
+      el.kpiTotal.textContent = refundsCache.length;
+      el.kpiValor.textContent = formatCurrency(refundsCache.reduce((sum, item) => sum + Number(item.valorDevolvido || 0), 0));
+      el.kpiTransferencias.textContent = refundsCache.filter(item => item.metodoDevolucao === 'Transferência Bancária').length;
+      el.kpiPendentes.textContent = transfersCache.filter(item => !item.recebido).length;
+    }
+
+    function previewImage() {
+      const file = el.comprovativo.files[0];
+      if (!file) {
+        el.imagePreviewBox.innerHTML = '<div class="badge">Comprovativo</div><div class="muted">Ainda sem imagem selecionada</div>';
+        return;
+      }
+      const localUrl = URL.createObjectURL(file);
+      el.imagePreviewBox.innerHTML = `
+        <div class="badge">Comprovativo</div>
+        <img src="${localUrl}" alt="Pré-visualização do comprovativo" width="900" height="540" loading="lazy">
+        <div class="small">${escapeHtml(file.name)} · ${(file.size / 1024).toFixed(1)} KB</div>
+      `;
+    }
+
+    function exportRefundsCsv() {
+      const rows = [
+        ['dataDevolucao','numeroEncomenda','colaboradorNumero','valorDevolvido','metodoDevolucao','outrosDescricao','comprovativoUrl'],
+        ...refundsCache.map(item => [
+          item.dataDevolucao || '',
+          item.numeroEncomenda || '',
+          item.colaboradorNumero || '',
+          item.valorDevolvido || '',
+          item.metodoDevolucao || '',
+          item.outrosDescricao || '',
+          item.comprovativoUrl || ''
+        ])
+      ];
+      const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(';')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `devolucoes_online_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showAppMessage('Exportação CSV iniciada.', 'success');
+    }
+
+    function showAppMessage(text, type) {
+      el.appMessage.className = `notice ${type}`;
+      el.appMessage.textContent = text;
+      clearTimeout(showAppMessage._timer);
+      showAppMessage._timer = setTimeout(() => {
+        el.appMessage.className = 'hidden';
+        el.appMessage.textContent = '';
+      }, 4500);
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(Number(value || 0));
+    }
+
+    function formatDate(value) {
+      if (!value) return '-';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return new Intl.DateTimeFormat('pt-PT').format(d);
+    }
+
+    function sanitizeFileName(name) {
+      return String(name || 'ficheiro').replace(/[^a-zA-Z0-9._-]/g, '_');
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+  </script>
+</body>
+</html>
