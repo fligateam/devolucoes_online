@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registo de devoluções do online</title>
-  <meta name="description" content="Aplicação interna para registo de devoluções do online com Firebase Firestore e Storage, sem login." />
+  <meta name="description" content="App gratuita sem Storage — imagens em base64 no Firestore Spark." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,78 +20,199 @@
       --color-text: #2b2924; --color-text-muted: #706d66; --color-text-faint: #a19d96; --color-text-inverse: #fbfaf7;
       --color-primary: #0b6b70; --color-primary-hover: #0c4f53; --color-primary-highlight: #d8e6e4; --color-success: #4d7b2f; --color-warning: #9d5a1d; --color-error: #9a356f;
       --radius-sm: .5rem; --radius-md: .75rem; --radius-lg: 1rem; --radius-xl: 1.25rem; --radius-full: 9999px;
-      --shadow-sm: 0 1px 2px rgba(43, 41, 36, .06); --shadow-md: 0 10px 28px rgba(43, 41, 36, .08); --transition: 180ms cubic-bezier(.16, 1, .3, 1);
+      --shadow-sm: 0 1px 2px rgba(43, 41, 36, .06); --shadow-md: 0 10px 28px rgba(43, 41, 36, .08);
+      --transition: 180ms cubic-bezier(.16, 1, .3, 1);
       --font-body: 'Montserrat', sans-serif;
     }
     [data-theme="dark"] {
-      --color-bg: #171614; --color-surface: #1d1b19; --color-surface-2: #201f1d; --color-surface-offset: #262320; --color-border: #3a3733; --color-divider: #2c2926;
+      --color-bg: #171614; --color-surface: #1d1b19; --color-surface-2: #201f1d; --color-surface-offset: #262320;
+      --color-border: #3a3733; --color-divider: #2c2926;
       --color-text: #e5e1da; --color-text-muted: #b5b1aa; --color-text-faint: #88847d; --color-text-inverse: #171614;
-      --color-primary: #59a5ae; --color-primary-hover: #7abdc6; --color-primary-highlight: rgba(89,165,174,.16); --color-success: #7fb55d; --color-warning: #d29063; --color-error: #d36dab;
+      --color-primary: #59a5ae; --color-primary-hover: #7abdc6; --color-primary-highlight: rgba(89,165,174,.16);
+      --color-success: #7fb55d; --color-warning: #d29063; --color-error: #d36dab;
       --shadow-sm: 0 1px 2px rgba(0,0,0,.22); --shadow-md: 0 12px 30px rgba(0,0,0,.36);
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
-    body { min-height: 100vh; font-family: var(--font-body); background: linear-gradient(180deg, var(--color-bg), var(--color-surface-offset)); color: var(--color-text); font-size: var(--text-base); }
+    body {
+      min-height: 100vh;
+      font-family: var(--font-body);
+      background: linear-gradient(180deg, var(--color-bg), var(--color-surface-offset));
+      color: var(--color-text);
+      font-size: var(--text-base);
+    }
     button, input, select, textarea { font: inherit; }
     img, svg { display: block; max-width: 100%; }
     .hidden { display: none !important; }
+
     .shell { min-height: 100vh; display: grid; grid-template-columns: 300px 1fr; }
-    .sidebar { position: sticky; top: 0; height: 100vh; padding: var(--space-6); border-right: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-surface) 88%, transparent); backdrop-filter: blur(12px); display: flex; flex-direction: column; gap: var(--space-6); }
+    .sidebar {
+      position: sticky; top: 0; height: 100vh;
+      padding: var(--space-6);
+      border-right: 1px solid var(--color-border);
+      background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+      backdrop-filter: blur(12px);
+      display: flex; flex-direction: column; gap: var(--space-6);
+    }
     .brand { display: flex; align-items: center; gap: var(--space-3); }
-    .brand-mark { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--color-primary-highlight); color: var(--color-primary); }
+    .brand-mark {
+      width: 46px; height: 46px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: var(--color-primary-highlight); color: var(--color-primary);
+    }
     .brand strong { display: block; }
     .brand span { color: var(--color-text-muted); font-size: var(--text-xs); }
+
     .nav { display: grid; gap: var(--space-2); }
-    .nav button { text-align: left; padding: .95rem 1rem; border-radius: var(--radius-lg); border: 1px solid transparent; background: transparent; color: var(--color-text); font-weight: 600; cursor: pointer; }
+    .nav button {
+      text-align: left; padding: .95rem 1rem;
+      border-radius: var(--radius-lg); border: 1px solid transparent;
+      background: transparent; color: var(--color-text); font-weight: 600; cursor: pointer;
+    }
     .nav button.active { background: var(--color-primary); color: var(--color-text-inverse); }
-    .panel { border: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-surface) 92%, transparent); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
+
+    .panel {
+      border: 1px solid var(--color-border);
+      background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+    }
     .sidebar-note { margin-top: auto; padding: var(--space-4); color: var(--color-text-muted); font-size: var(--text-sm); }
+
     .main { padding: var(--space-6); display: grid; gap: var(--space-5); }
     .topbar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
     .topbar h1 { margin: 0; font-size: var(--text-xl); letter-spacing: -.03em; }
     .topbar p { margin: .35rem 0 0; color: var(--color-text-muted); }
+
     .actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
-    .button { border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); border-radius: var(--radius-md); padding: .85rem 1rem; font-size: var(--text-sm); font-weight: 700; cursor: pointer; transition: transform var(--transition), background var(--transition), border-color var(--transition); }
+    .button {
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text);
+      border-radius: var(--radius-md);
+      padding: .85rem 1rem;
+      font-size: var(--text-sm); font-weight: 700;
+      cursor: pointer;
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+    }
     .button:hover { transform: translateY(-1px); }
     .button.primary { background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary); }
     .button.ghost { background: transparent; }
     .button.success { background: color-mix(in srgb, var(--color-success) 12%, var(--color-surface)); color: var(--color-success); }
+
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
     .metric { padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface-2); }
-    .metric span { display: block; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .45rem; }
+    .metric span {
+      display: block; color: var(--color-text-muted);
+      font-size: var(--text-xs); text-transform: uppercase;
+      letter-spacing: .08em; margin-bottom: .45rem;
+    }
     .metric strong { font-size: var(--text-lg); font-variant-numeric: tabular-nums; }
+
     .layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--space-4); }
     .card { padding: var(--space-5); }
+
     .section-title { margin: 0 0 var(--space-3); font-size: var(--text-lg); letter-spacing: -.02em; }
     .toolbar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4); }
     .small, .muted { color: var(--color-text-muted); font-size: var(--text-sm); }
+
     .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
     .field { display: grid; gap: var(--space-2); }
     .field.full { grid-column: 1 / -1; }
     .field label { font-size: var(--text-sm); font-weight: 700; }
     .field small { font-size: var(--text-xs); color: var(--color-text-muted); }
-    input, select, textarea { width: 100%; padding: .95rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: var(--color-surface-2); color: var(--color-text); outline: none; }
-    input:focus, select:focus, textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 15%, transparent); }
+
+    input, select, textarea {
+      width: 100%; padding: .95rem 1rem;
+      border-radius: var(--radius-md); border: 1px solid var(--color-border);
+      background: var(--color-surface-2); color: var(--color-text); outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 15%, transparent);
+    }
     textarea { resize: vertical; min-height: 110px; }
-    .badge { display: inline-flex; align-items: center; padding: .35rem .7rem; border-radius: var(--radius-full); background: var(--color-primary-highlight); color: var(--color-primary); font-size: var(--text-xs); font-weight: 700; }
-    .preview-box { border: 1px dashed var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); background: var(--color-surface-2); display: grid; gap: var(--space-3); }
-    .preview-box img { width: 100%; max-height: 240px; object-fit: cover; border-radius: var(--radius-md); }
-    .notice { padding: .95rem 1rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface-2); font-size: var(--text-sm); }
+
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: .35rem .7rem; border-radius: var(--radius-full);
+      background: var(--color-primary-highlight); color: var(--color-primary);
+      font-size: var(--text-xs); font-weight: 700;
+    }
+
+    .preview-box {
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      background: var(--color-surface-2);
+      display: grid; gap: var(--space-3);
+    }
+    .preview-box img {
+      width: 100%; max-height: 240px;
+      object-fit: cover; border-radius: var(--radius-md);
+    }
+
+    .notice {
+      padding: .95rem 1rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface-2);
+      font-size: var(--text-sm);
+    }
     .notice.success { color: var(--color-success); background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface)); }
     .notice.error { color: var(--color-error); background: color-mix(in srgb, var(--color-error) 10%, var(--color-surface)); }
+
     .table-wrap { overflow: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
     table { width: 100%; min-width: 920px; border-collapse: collapse; }
     th, td { padding: .9rem 1rem; border-bottom: 1px solid var(--color-divider); text-align: left; vertical-align: top; font-size: var(--text-sm); }
-    th { background: var(--color-surface-offset); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: .08em; font-size: var(--text-xs); }
-    .status-pill { display: inline-flex; align-items: center; padding: .3rem .7rem; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 700; }
+    th {
+      background: var(--color-surface-offset); color: var(--color-text-muted);
+      text-transform: uppercase; letter-spacing: .08em; font-size: var(--text-xs);
+    }
+
+    .status-pill {
+      display: inline-flex; align-items: center;
+      padding: .3rem .7rem; border-radius: var(--radius-full);
+      font-size: var(--text-xs); font-weight: 700;
+    }
     .status-pill.success { background: color-mix(in srgb, var(--color-success) 14%, var(--color-surface)); color: var(--color-success); }
     .status-pill.pending { background: color-mix(in srgb, var(--color-warning) 14%, var(--color-surface)); color: var(--color-warning); }
-    .empty { padding: var(--space-8); text-align: center; color: var(--color-text-muted); border: 1px dashed var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface-2); }
+
+    .empty {
+      padding: var(--space-8); text-align: center;
+      color: var(--color-text-muted);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface-2);
+    }
+
     .tabs-section.hidden { display: none !important; }
     .mobile-menu { display: none; }
-    @media (max-width: 1100px) { .metrics { grid-template-columns: repeat(2, 1fr); } .layout { grid-template-columns: 1fr; } }
-    @media (max-width: 920px) { .shell { grid-template-columns: 1fr; } .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: min(86vw, 320px); transform: translateX(-100%); transition: transform var(--transition); z-index: 20; } .sidebar.open { transform: translateX(0); } .mobile-menu { display: inline-flex; } }
-    @media (max-width: 720px) { .main { padding: var(--space-4); } .form-grid, .metrics { grid-template-columns: 1fr; } .card { padding: var(--space-4); } }
+
+    .thumbnail { max-width: 120px; max-height: 80px; border-radius: 4px; cursor: pointer; }
+    .thumbnail.full { max-width: 100%; max-height: none; cursor: default; }
+
+    @media (max-width: 1100px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 920px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed; left: 0; top: 0; bottom: 0;
+        width: min(86vw, 320px);
+        transform: translateX(-100%);
+        transition: transform var(--transition);
+        z-index: 20;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-menu { display: inline-flex; }
+    }
+    @media (max-width: 720px) {
+      .main { padding: var(--space-4); }
+      .form-grid, .metrics { grid-template-columns: 1fr; }
+      .card { padding: var(--space-4); }
+    }
   </style>
 </head>
 <body>
@@ -99,7 +220,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-mark">
-          <svg viewBox="0 0 48 48" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo da aplicação">
+          <svg viewBox="0 0 48 48" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="8" y="8" width="32" height="32" rx="10" stroke="currentColor" stroke-width="3"/>
             <path d="M17 24H31" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
             <path d="M24 17V31" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
@@ -107,7 +228,7 @@
         </div>
         <div>
           <strong>Registo de devoluções do online</strong>
-          <span>App interna sem login</span>
+          <span>100% grátis Spark (sem Storage)</span>
         </div>
       </div>
 
@@ -118,7 +239,7 @@
       </nav>
 
       <div class="panel sidebar-note">
-        App simplificada para utilização direta no balcão ou backoffice, sem autenticação, mantendo Firestore e Storage.
+        Imagens em base64 no Firestore — sem Storage, sem cartão, 100% grátis.
       </div>
     </aside>
 
@@ -126,7 +247,7 @@
       <header class="topbar">
         <div>
           <h1>Registo de devoluções do online</h1>
-          <p>Versão simplificada sem utilizadores e sem login, pronta para Firebase e GitHub Pages.</p>
+          <p>Versão gratuita Spark — imagens base64 no Firestore, sem Storage.</p>
         </div>
         <div class="actions">
           <button class="button ghost mobile-menu" id="mobileMenuBtn">Menu</button>
@@ -149,7 +270,7 @@
           <article class="panel card">
             <div class="toolbar">
               <h2 class="section-title">Nova devolução</h2>
-              <span class="badge">Firestore + Storage</span>
+              <span class="badge">Firestore (com imagem base64)</span>
             </div>
             <form id="refundForm">
               <div class="form-grid">
@@ -188,7 +309,7 @@
                 <div class="field full">
                   <label for="comprovativo">Comprovativo (imagem)</label>
                   <input id="comprovativo" type="file" accept="image/*">
-                  <small>O comprovativo é guardado no Firebase Storage, na cloud da Google.</small>
+                  <small>A imagem é convertida em base64 e guardada no Firestore.</small>
                 </div>
               </div>
               <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1rem;">
@@ -206,7 +327,10 @@
             </div>
             <div class="preview-box" style="margin-top:1rem;">
               <div class="badge">Automação</div>
-              <div class="muted">Quando o método for transferência bancária, a app cria automaticamente o respetivo registo no separador de transferências com estado pendente.</div>
+              <div class="muted">
+                Se o método for transferência bancária, é criado automaticamente um registo em
+                <strong>transferencias_bancarias</strong> com estado pendente.
+              </div>
             </div>
           </article>
         </div>
@@ -215,7 +339,7 @@
           <div class="toolbar">
             <div>
               <h2 class="section-title">Histórico de devoluções</h2>
-              <div class="small">Consulta em tempo real e pesquisa por encomenda, colaborador ou método.</div>
+              <div class="small">Pesquisa por encomenda, colaborador ou método.</div>
             </div>
             <input id="searchRefunds" type="search" placeholder="Pesquisar" style="max-width:320px;">
           </div>
@@ -228,7 +352,7 @@
           <div class="toolbar">
             <div>
               <h2 class="section-title">Transferências bancárias</h2>
-              <div class="small">Controlo simples de recebido / não recebido.</div>
+              <div class="small">Controlo de recebido / não recebido.</div>
             </div>
           </div>
           <div id="transfersContainer" class="empty">Ainda não existem transferências bancárias.</div>
@@ -237,17 +361,16 @@
 
       <section id="section-config" class="tabs-section hidden">
         <article class="panel card">
-          <h2 class="section-title">Configuração Firebase já incluída</h2>
-          <div class="notice">A app já inclui a configuração do projeto <strong>devol-online</strong>. Está preparada para usar Firestore e Storage sem autenticação, tal como pediu.</div>
+          <h2 class="section-title">Configuração Firebase</h2>
+          <div class="notice">
+            Esta app usa apenas Cloud Firestore no projeto <strong>devol-online</strong>, sem Firebase Storage,
+            para manter tudo dentro do plano gratuito Spark (sem cartão).
+          </div>
           <div class="preview-box" style="margin-top:1rem;">
             <div><strong>Projeto:</strong> devol-online</div>
             <div><strong>Base de dados:</strong> Cloud Firestore</div>
-            <div><strong>Ficheiros:</strong> Firebase Storage</div>
-            <div><strong>Deploy:</strong> GitHub Pages</div>
-          </div>
-          <div class="preview-box" style="margin-top:1rem;">
-            <strong>Atenção importante</strong>
-            <div class="muted">Como não quer login, as regras do Firebase terão de ser abertas ao vosso caso de uso. Para produção, isso exige cuidado extra, porque qualquer pessoa com o link pode potencialmente escrever dados se as regras estiverem totalmente abertas.</div>
+            <div><strong>Coleções:</strong> devolucoes_online, transferencias_bancarias</div>
+            <div><strong>Deploy:</strong> GitHub Pages (ficheiro único HTML)</div>
           </div>
         </article>
       </section>
@@ -267,12 +390,6 @@
       onSnapshot,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-    import {
-      getStorage,
-      ref,
-      uploadBytes,
-      getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAtROUYStFmWkfHeCkyAQkFU_6-rnHyWzc",
@@ -285,10 +402,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    let refundsCache = [];
-    let transfersCache = [];
 
     const el = {
       sidebar: document.getElementById('sidebar'),
@@ -345,7 +458,11 @@
     el.refundForm.addEventListener('submit', handleRefundSubmit);
     el.searchRefunds.addEventListener('input', renderRefunds);
     el.exportCsvBtn.addEventListener('click', exportRefundsCsv);
+
     el.dataDevolucao.value = new Date().toISOString().slice(0, 10);
+
+    let refundsCache = [];
+    let transfersCache = [];
 
     bindRealtimeData();
 
@@ -370,6 +487,7 @@
       e.preventDefault();
       const metodo = el.metodoDevolucao.value;
       const file = el.comprovativo.files[0] || null;
+
       const payload = {
         colaboradorNumero: Number(el.colaboradorNumero.value),
         dataDevolucao: el.dataDevolucao.value,
@@ -377,8 +495,8 @@
         valorDevolvido: Number(el.valorDevolvido.value),
         metodoDevolucao: metodo,
         outrosDescricao: metodo === 'Outros' ? el.outrosDescricao.value.trim() : '',
-        comprovativoUrl: '',
-        comprovativoPath: '',
+        comprovativoBase64: '',
+        comprovativoNome: file ? file.name : '',
         createdAt: serverTimestamp()
       };
 
@@ -396,17 +514,21 @@
 
       try {
         if (file) {
-          const now = new Date();
-          const path = `comprovativos_devolucoes/${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${Date.now()}_${sanitizeFileName(file.name)}`;
-          const fileRef = ref(storage, path);
-          await uploadBytes(fileRef, file);
-          payload.comprovativoUrl = await getDownloadURL(fileRef);
-          payload.comprovativoPath = path;
+          if (file.size > 5 * 1024 * 1024) {
+            throw new Error('Imagem demasiado grande (máx 5MB).');
+          }
+          const reader = new FileReader();
+          const base64 = await new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          payload.comprovativoBase64 = base64;
         }
 
         const refundRef = await addDoc(collection(db, 'devolucoes_online'), payload);
 
-        if (payload.metodoDevolucao === 'Transferência Bancária') {
+        if (metodo === 'Transferência Bancária') {
           await addDoc(collection(db, 'transferencias_bancarias'), {
             refundId: refundRef.id,
             dataDevolucao: payload.dataDevolucao,
@@ -459,8 +581,13 @@
           </thead>
           <tbody>
             ${data.map(item => {
-              const proof = item.comprovativoUrl ? `<a class="button" href="${item.comprovativoUrl}" target="_blank" rel="noopener noreferrer">Abrir</a>` : '<span class="small">Sem imagem</span>';
-              const outros = item.metodoDevolucao === 'Outros' && item.outrosDescricao ? `<div class="small">${escapeHtml(item.outrosDescricao)}</div>` : '';
+              const proof = item.comprovativoBase64
+                ? `<img src="${item.comprovativoBase64}" class="thumbnail" alt="Comprovativo" title="${escapeHtml(item.comprovativoNome || 'Imagem')}"
+                     onclick="this.classList.toggle('full')" />`
+                : '<span class="small">Sem imagem</span>';
+              const outros = item.metodoDevolucao === 'Outros' && item.outrosDescricao
+                ? `<div class="small">${escapeHtml(item.outrosDescricao)}</div>`
+                : '';
               return `
                 <tr>
                   <td>#${item.numeroEncomenda ?? '-'}</td>
@@ -501,7 +628,9 @@
                 <td>${formatDate(item.dataDevolucao)}</td>
                 <td>${formatCurrency(item.valor)}</td>
                 <td><span class="status-pill ${item.recebido ? 'success' : 'pending'}">${item.recebido ? 'Recebido' : 'Não recebido'}</span></td>
-                <td><button class="button ${item.recebido ? '' : 'success'}" data-transfer-id="${item.id}" data-next="${item.recebido ? 'false' : 'true'}">${item.recebido ? 'Marcar como não recebido' : 'Marcar como recebido'}</button></td>
+                <td><button class="button ${item.recebido ? '' : 'success'}" data-transfer-id="${item.id}" data-next="${item.recebido ? 'false' : 'true'}">
+                  ${item.recebido ? 'Marcar como não recebido' : 'Marcar como recebido'}
+                </button></td>
               </tr>
             `).join('')}
           </tbody>
@@ -525,9 +654,11 @@
 
     function updateKpis() {
       el.kpiTotal.textContent = refundsCache.length;
-      el.kpiValor.textContent = formatCurrency(refundsCache.reduce((sum, item) => sum + Number(item.valorDevolvido || 0), 0));
-      el.kpiTransferencias.textContent = refundsCache.filter(item => item.metodoDevolucao === 'Transferência Bancária').length;
-      el.kpiPendentes.textContent = transfersCache.filter(item => !item.recebido).length;
+      el.kpiValor.textContent = formatCurrency(
+        refundsCache.reduce((sum, item) => sum + Number(item.valorDevolvido || 0), 0)
+      );
+      el.kpiTransferencias.textContent = refundsCache.filter(i => i.metodoDevolucao === 'Transferência Bancária').length;
+      el.kpiPendentes.textContent = transfersCache.filter(i => !i.recebido).length;
     }
 
     function previewImage() {
@@ -536,17 +667,17 @@
         el.imagePreviewBox.innerHTML = '<div class="badge">Comprovativo</div><div class="muted">Ainda sem imagem selecionada</div>';
         return;
       }
-      const localUrl = URL.createObjectURL(file);
+      const url = URL.createObjectURL(file);
       el.imagePreviewBox.innerHTML = `
         <div class="badge">Comprovativo</div>
-        <img src="${localUrl}" alt="Pré-visualização do comprovativo" width="900" height="540" loading="lazy">
+        <img src="${url}" alt="Pré-visualização do comprovativo" loading="lazy">
         <div class="small">${escapeHtml(file.name)} · ${(file.size / 1024).toFixed(1)} KB</div>
       `;
     }
 
     function exportRefundsCsv() {
       const rows = [
-        ['dataDevolucao','numeroEncomenda','colaboradorNumero','valorDevolvido','metodoDevolucao','outrosDescricao','comprovativoUrl'],
+        ['dataDevolucao','numeroEncomenda','colaboradorNumero','valorDevolvido','metodoDevolucao','outrosDescricao','comprovativoNome'],
         ...refundsCache.map(item => [
           item.dataDevolucao || '',
           item.numeroEncomenda || '',
@@ -554,10 +685,13 @@
           item.valorDevolvido || '',
           item.metodoDevolucao || '',
           item.outrosDescricao || '',
-          item.comprovativoUrl || ''
+          item.comprovativoNome || ''
         ])
       ];
-      const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(';')).join('\n');
+      const csv = rows.map(row =>
+        row.map(v => `"${String(v).replaceAll('"','""')}"`).join(';')
+      ).join('\n');
+
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -578,7 +712,8 @@
     }
 
     function formatCurrency(value) {
-      return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(Number(value || 0));
+      return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
+        .format(Number(value || 0));
     }
 
     function formatDate(value) {
@@ -588,17 +723,13 @@
       return new Intl.DateTimeFormat('pt-PT').format(d);
     }
 
-    function sanitizeFileName(name) {
-      return String(name || 'ficheiro').replace(/[^a-zA-Z0-9._-]/g, '_');
-    }
-
     function escapeHtml(value) {
       return String(value ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
     }
   </script>
 </body>
