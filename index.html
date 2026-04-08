@@ -466,7 +466,20 @@ window.uploadDrive = async function(tId, inputEl) {
     inputEl.disabled = false;
   }
 };
-
+window.removeComprovativo = async function(tId) {
+  if (!confirm('Remover comprovativo? O ficheiro no Drive não será apagado.')) return;
+  try {
+    await updateDoc(doc(db, 'transferencias_bancarias', tId), {
+      comprovativoDriveUrl: '',
+      comprovativoDriveDirectUrl: '',
+      comprovativoNome: '',
+      updatedAt: serverTimestamp()
+    });
+    showMsg('✅ Comprovativo removido', 'success');
+  } catch (err) {
+    showMsg('❌ Erro ao remover: ' + err.message, 'error');
+  }
+};
 // FORM TROCAS
 document.getElementById('tData').value=new Date().toISOString().split('T')[0];
 document.getElementById('trocaForm').addEventListener('submit',async e=>{
@@ -598,13 +611,18 @@ function renderTransfers(){
   if(!transfers.length){document.getElementById('transContainer').innerHTML='<div class="empty-state">Sem transferências</div>';return;}
   const rows=transfers.map(t=>{
     const hasDrive=t.comprovativoDriveUrl&&t.comprovativoDriveUrl.length>0;
-    const driveHtml='<div class="upload-area" onclick="document.getElementById(\'di_'+t.id+'\').click()">'
-      +'<input type="file" id="di_'+t.id+'" accept="image/*,application/pdf" onchange="uploadDrive(\''+t.id+'\',this)">'
-      +'<label for="di_'+t.id+'">📎 '+(hasDrive?'Substituir comprovativo':'Carregar comprovativo (foto/PDF)')+'</label>'
-      +'</div>'
-      +'<div id="us_'+t.id+'" class="upload-status'+(hasDrive?' done':'')+'">'
-      +(hasDrive?'✅ Enviado — <a href="'+t.comprovativoDriveUrl+'" target="_blank" style="color:#155724">Ver no Drive</a>':'')
-      +'</div>';
+const rows = transfers.map(t => {
+  const hasDrive = t.comprovativoDriveUrl && t.comprovativoDriveUrl.length > 0;
+  const driveHtml = '<div class="upload-area">'
+    + '<label for="di_' + t.id + '" style="cursor:pointer;display:block;padding:8px">📎 ' + (hasDrive ? 'Substituir comprovativo' : 'Carregar comprovativo (foto/PDF)') + '</label>'
+    + '<input type="file" id="di_' + t.id + '" accept="image/*,application/pdf" capture="environment" style="display:none" onchange="uploadDrive(\'' + t.id + '\',this)">'
+    + '</div>'
+    + '<div id="us_' + t.id + '" class="upload-status' + (hasDrive ? ' done' : '') + '">'
+    + (hasDrive
+        ? '✅ Enviado — <a href="' + t.comprovativoDriveUrl + '" target="_blank" style="color:#155724">Ver no Drive</a>'
+          + ' <button class="btn" style="font-size:11px;padding:3px 8px;color:#dc3545;border-color:#dc3545;margin-left:6px" onclick="removeComprovativo(\'' + t.id + '\')">🗑️ Remover</button>'
+        : '')
+    + '</div>';
     return '<tr>'
       +'<td>'+fmtDate(t.dataDevolucao)+'</td>'
       +'<td>€'+t.valor.toFixed(2)+'</td>'
