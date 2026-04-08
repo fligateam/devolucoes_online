@@ -481,34 +481,47 @@ document.getElementById('modalConfirm').addEventListener('click',async()=>{
 });
 
 // ANULAR
-document.getElementById('anulBtn').addEventListener('click',async()=>{
-  const code=prompt('Código de anulação (formato ANUL_XXXXX):');
-  if(!code||!code.startsWith('ANUL_'))return showMsg('Código inválido. Deve começar por ANUL_','error');
-  const num=parseInt(code.replace('ANUL_',''));
-  if(isNaN(num))return showMsg('Número de encomenda inválido','error');
-  const r=refunds.find(x=>x.numeroEncomenda===num);
-  if(!r)return showMsg('Encomenda #'+num+' não encontrada','error');
-  if(!confirm('Apagar devolução #'+r.numeroEncomenda+' — €'+r.valorDevolvido.toFixed(2)+'?'))return;
-  try{
-    await deleteDoc(doc(db,'devolucoes_online',r.id));
-    const t=transfers.find(x=>x.refundId===r.id);
-    if(t)await deleteDoc(doc(db,'transferencias_bancarias',t.id));
-    showMsg('✅ Devolução #'+num+' anulada','success');
-  }catch(err){showMsg('Erro: '+err.message,'error');}
+document.getElementById('anulBtn').addEventListener('click', async () => {
+  const code = prompt('Código de anulação (formato ANUL_XXXXX ou TROCA_XXXXX):');
+  if (!code) return;
+
+  if (code.startsWith('TROCA_')) {
+    const num = parseInt(code.replace('TROCA_', ''));
+    if (isNaN(num)) return showMsg('Número de encomenda inválido', 'error');
+
+    const troca = trocas.find(x => x.numeroEncomenda === num);
+    if (!troca) return showMsg('Troca #' + num + ' não encontrada', 'error');
+
+    if (!confirm('Apagar troca #' + troca.numeroEncomenda + ' (' + troca.cnpDevolvido + ' → ' + troca.cnpNovo + ')?')) return;
+
+    try {
+      await deleteDoc(doc(db, 'trocas_online', troca.id));
+      showMsg('✅ Troca #' + num + ' anulada', 'success');
+    } catch (err) {
+      showMsg('Erro: ' + err.message, 'error');
+    }
+    return;
+  }
+
+  if (!code.startsWith('ANUL_')) return showMsg('Código inválido. Deve começar por ANUL_ ou TROCA_', 'error');
+
+  const num = parseInt(code.replace('ANUL_', ''));
+  if (isNaN(num)) return showMsg('Número de encomenda inválido', 'error');
+
+  const r = refunds.find(x => x.numeroEncomenda === num);
+  if (!r) return showMsg('Encomenda #' + num + ' não encontrada', 'error');
+
+  if (!confirm('Apagar devolução #' + r.numeroEncomenda + ' — €' + r.valorDevolvido.toFixed(2) + '?')) return;
+
+  try {
+    await deleteDoc(doc(db, 'devolucoes_online', r.id));
+    const t = transfers.find(x => x.refundId === r.id);
+    if (t) await deleteDoc(doc(db, 'transferencias_bancarias', t.id));
+    showMsg('✅ Devolução #' + num + ' anulada', 'success');
+  } catch (err) {
+    showMsg('Erro: ' + err.message, 'error');
+  }
 });
-// Anular troca (adicionar depois da lógica das devoluções)
-if(code.startsWith('TROCA_')){
-  const num=parseInt(code.replace('TROCA_',''));
-  if(isNaN(num))return showMsg('Número de encomenda inválido','error');
-  const troca=trocas.find(x=>x.numeroEncomenda===num);
-  if(!troca)return showMsg('Troca #'+num+' não encontrada','error');
-  if(!confirm('Apagar troca #'+troca.numeroEncomenda+' ('+troca.cnpDevolvido+' → '+troca.cnpNovo+')?'))return;
-  try{
-    await deleteDoc(doc(db,'trocas_online',troca.id));
-    showMsg('✅ Troca #'+num+' anulada','success');
-  }catch(err){showMsg('Erro: '+err.message,'error');}
-  return;
-}
 // EXPORT
 document.getElementById('exportBtn').addEventListener('click',()=>{
   const rows=[['Data','Encomenda','Colaborador','Valor','Metodo'],...refunds.map(r=>[r.dataDevolucao,r.numeroEncomenda,r.colaboradorNumero,r.valorDevolvido.toFixed(2),r.metodoDevolucao+(r.outrosDescricao?' - '+r.outrosDescricao:'')])];
