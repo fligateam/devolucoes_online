@@ -394,7 +394,7 @@ document.getElementById('myForm').addEventListener('reset',()=>{
   },10);
 });
 
-// UPLOAD DRIVE
+/// UPLOAD DRIVE
 window.uploadDrive = async function(tId, inputEl) {
   if (!APPS_SCRIPT_URL) {
     showMsg('Configure primeiro o URL do Apps Script no separador Transferências', 'error');
@@ -402,51 +402,63 @@ window.uploadDrive = async function(tId, inputEl) {
   }
   const file = inputEl.files[0];
   if (!file) return;
-  
+
+  // Validar tipo de ficheiro
+  const allowedTypes = ['image/jpeg','image/png','image/jpg','image/heic','application/pdf',''];
+  if (file.type && !allowedTypes.includes(file.type)) {
+    const statusEl = document.getElementById('us_' + tId);
+    statusEl.className = 'upload-status err';
+    statusEl.textContent = '❌ Tipo de ficheiro não suportado';
+    inputEl.value = '';
+    return;
+  }
+
   const statusEl = document.getElementById('us_' + tId);
   statusEl.className = 'upload-status uploading';
   statusEl.textContent = '⏳ A enviar para Drive...';
   inputEl.disabled = true;
-  
+
   try {
     if (file.size > 10 * 1024 * 1024) throw new Error('Ficheiro demasiado grande (máx 10MB)');
-    
+
     const base64 = await new Promise((res, rej) => {
       const reader = new FileReader();
       reader.onload = () => res(reader.result);
       reader.onerror = rej;
       reader.readAsDataURL(file);
     });
-    
-    // SEM headers JSON — usa FormData para evitar CORS
+
+    // FormData — sem Content-Type header para evitar CORS
     const formData = new FormData();
     formData.append('fileBase64', base64);
-    formData.append('fileName', file.name);
-    formData.append('mimeType', file.type);
+    formData.append('fileName', file.name || ('comprovativo_' + Date.now() + '.jpg'));
+    formData.append('mimeType', file.type || 'image/jpeg');
     formData.append('transferId', tId);
-    
+
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      body: formData  // SEM Content-Type header
+      body: formData
     });
-    
+
     const json = await resp.json();
-    
-    if (!json.success) {
-      throw new Error(json.error || 'Erro desconhecido');
-    }
-    
-    // ATUALIZA FIREBASE
+    if (!json.success) throw new Error(json.error || 'Erro desconhecido');
+
+    // Valores seguros — nunca undefined para o Firestore
+    const safeFileUrl = json.fileUrl || (json.fileId ? 'https://drive.google.com/file/d/' + json.fileId + '/view' : '');
+    const safeDirectUrl = json.directUrl || '';
+    const safeNome = file.name || 'comprovativo';
+
+    // Atualiza Firestore
     await updateDoc(doc(db, 'transferencias_bancarias', tId), {
-      comprovativoDriveUrl: json.fileUrl || ('https://drive.google.com/file/d/' + json.fileId + '/view'),
-      comprovativoDriveDirectUrl: json.directUrl,
-      comprovativoNome: file.name,
+      comprovativoDriveUrl: safeFileUrl,
+      comprovativoDriveDirectUrl: safeDirectUrl,
+      comprovativoNome: safeNome,
       updatedAt: serverTimestamp()
     });
-    
+
     statusEl.className = 'upload-status done';
-    statusEl.innerHTML = '✅ Enviado — <a href="' + (json.fileUrl || ('https://drive.google.com/file/d/' + json.fileId + '/view')) + '" target="_blank" style="color:#155724">Ver no Drive</a>';
-    
+    statusEl.innerHTML = '✅ Enviado — <a href="' + safeFileUrl + '" target="_blank" style="color:#155724">Ver no Drive</a>';
+
   } catch (err) {
     statusEl.className = 'upload-status err';
     statusEl.textContent = '❌ ' + err.message;
@@ -587,7 +599,7 @@ function renderTransfers(){
   const rows=transfers.map(t=>{
     const hasDrive=t.comprovativoDriveUrl&&t.comprovativoDriveUrl.length>0;
     const driveHtml='<div class="upload-area" onclick="document.getElementById(\'di_'+t.id+'\').click()">'
-      +'<input type="file" id="di_'+t.id+'" accept="image/*,application/pdf" capture="environment" onchange="uploadDrive(\''+t.id+'\',this)">'
+      +'<input type="file" id="di_'+t.id+'" accept="image/*,application/pdf" onchange="uploadDrive(\''+t.id+'\',this)">'
       +'<label for="di_'+t.id+'">📎 '+(hasDrive?'Substituir comprovativo':'Carregar comprovativo (foto/PDF)')+'</label>'
       +'</div>'
       +'<div id="us_'+t.id+'" class="upload-status'+(hasDrive?' done':'')+'">'
