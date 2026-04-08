@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Montserrat',sans-serif;background:#f8f9fa;color:#333;line-height:1.5;font-size:16px}
-.app{max-width:1200px;margin:0 auto;padding:20px;display:grid;grid-template-columns:280px 1fr;gap:20px;min-height:100vh}
+.app{max-width:1280px;margin:0 auto;padding:20px;display:grid;grid-template-columns:280px 1fr;gap:20px;min-height:100vh}
 .sidebar{background:#fff;border:1px solid #dee2e6;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;height:fit-content}
 .brand{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid #dee2e6}
 .logo{width:44px;height:44px;background:#0b6b70;border-radius:10px;display:grid;place-items:center;color:white;font-weight:700;font-size:14px}
@@ -48,32 +48,55 @@ body{font-family:'Montserrat',sans-serif;background:#f8f9fa;color:#333;line-heig
 input,select,textarea{padding:11px 14px;border:1px solid #dee2e6;border-radius:8px;font-size:14px;background:#fff;color:#333;width:100%;font-family:inherit;transition:border-color .15s}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#0b6b70;box-shadow:0 0 0 3px rgba(11,107,112,.1)}
 textarea{resize:vertical;min-height:90px}
+.check-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #dee2e6;border-radius:8px;background:#f8f9fa;cursor:pointer}
+.check-row input[type=checkbox]{width:18px;height:18px;accent-color:#0b6b70;cursor:pointer;flex-shrink:0}
+.check-row label{font-weight:600;font-size:14px;cursor:pointer;margin:0}
 .btn-group{display:flex;gap:10px;flex-wrap:wrap}
-.preview-area{margin-top:16px;padding:16px;background:#f8f9fa;border-radius:8px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#6c757d;font-size:13px}
+.preview-area{margin-top:16px;padding:16px;background:#f8f9fa;border-radius:8px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#6c757d;font-size:13px;text-align:center}
 .preview-area img{max-width:100%;max-height:200px;border-radius:6px;object-fit:cover}
 .section-card{border:1px solid #dee2e6;border-radius:10px;padding:20px;margin-bottom:16px}
 .section-card h2{margin:0 0 16px;font-size:1.1rem;font-weight:600}
 .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap}
-.search-input{padding:9px 14px;border:1px solid #dee2e6;border-radius:8px;font-size:13px;width:260px}
+.search-input{padding:9px 14px;border:1px solid #dee2e6;border-radius:8px;font-size:13px;width:240px}
 .table-wrap{overflow:auto;border-radius:8px;border:1px solid #dee2e6}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #f8f9fa}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #f8f9fa;vertical-align:top}
 th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;font-size:11px;letter-spacing:.4px}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#e0f0f0;color:#0b6b70}
-.status-recebido{background:#d4edda;color:#155724;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.status-pendente{background:#fff3cd;color:#856404;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-warn{background:#fff3cd;color:#856404}
+.badge-success{background:#d4edda;color:#155724}
+.badge-purple{background:#e2d9f3;color:#6f42c1}
+.status-recebido{background:#d4edda;color:#155724;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block}
+.status-pendente{background:#fff3cd;color:#856404;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block}
+.status-terminado{background:#d4edda;color:#155724;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block}
+.status-pendente-troca{background:#fff3cd;color:#856404;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block}
+.status-comunicado{background:#e2d9f3;color:#6f42c1;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block}
 .thumbnail{max-width:80px;max-height:55px;border-radius:5px;cursor:pointer;border:1px solid #dee2e6;transition:transform .15s}
 .thumbnail:hover{transform:scale(1.05)}
 .empty-state{padding:40px;text-align:center;color:#6c757d;font-size:14px}
 .photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-.photo-card{border:1px solid #dee2e6;border-radius:10px;overflow:hidden;transition:box-shadow .15s;cursor:pointer}
+.photo-card{border:1px solid #dee2e6;border-radius:10px;overflow:hidden;transition:box-shadow .15s}
 .photo-card:hover{box-shadow:0 4px 15px rgba(0,0,0,.1)}
-.photo-card img{width:100%;height:160px;object-fit:cover;display:block}
+.photo-card img{width:100%;height:160px;object-fit:cover;display:block;cursor:pointer}
 .photo-info{padding:12px}
 .photo-num{font-weight:700;font-size:14px;margin:0 0 2px}
 .photo-meta{font-size:12px;color:#6c757d;margin:0}
+.upload-area{border:2px dashed #dee2e6;border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;margin-top:8px;background:#fafafa}
+.upload-area:hover{border-color:#0b6b70;background:#f0f9f9}
+.upload-area label{cursor:pointer;font-size:12px;color:#6c757d;display:block}
+.upload-area input{display:none}
+.upload-status{font-size:12px;padding:6px 10px;border-radius:6px;margin-top:6px;display:none}
+.upload-status.uploading{background:#cff4fc;color:#055160;display:block}
+.upload-status.done{background:#d4edda;color:#155724;display:block}
+.upload-status.err{background:#f8d7da;color:#721c24;display:block}
 .section.hidden{display:none}
+.config-box{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:16px;margin-bottom:20px;font-size:13px}
+.config-box strong{display:block;margin-bottom:4px;color:#856404}
+.config-box code{background:#fff;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;border:1px solid #dee2e6;word-break:break-all}
 .mobile-bar{display:none;background:#0b6b70;color:white;padding:12px 16px;align-items:center;justify-content:space-between}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;align-items:center;justify-content:center}
+.modal-box{background:#fff;border-radius:12px;padding:28px;max-width:420px;width:90%;display:flex;flex-direction:column;gap:16px}
+.modal-box h3{margin:0;font-size:1.1rem;font-weight:700}
 @media(max-width:900px){
   .app{grid-template-columns:1fr;padding:0}
   .main{border-radius:0;border:none;padding:16px}
@@ -89,10 +112,9 @@ th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;fon
 </style>
 </head>
 <body>
-
-<div class="mobile-bar" id="mobileBar">
+<div class="mobile-bar">
   <strong>Farmácia da Liga — Devoluções</strong>
-  <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="background:none;border:none;color:white;font-size:20px;cursor:pointer">☰</button>
+  <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="background:none;border:none;color:white;font-size:22px;cursor:pointer">☰</button>
 </div>
 
 <div class="app">
@@ -101,17 +123,16 @@ th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;fon
       <div class="logo">FL</div>
       <div>
         <div class="brand-name">Farmácia da Liga</div>
-        <div class="brand-sub">Devoluções Online</div>
+        <div class="brand-sub">Gestão de Devoluções</div>
       </div>
     </div>
-
     <nav class="nav">
       <button class="nav-btn active" data-tab="form">📝 Nova devolução</button>
       <button class="nav-btn" data-tab="list">📋 Histórico</button>
       <button class="nav-btn" data-tab="transfers">💳 Transferências</button>
+      <button class="nav-btn" data-tab="trocas">🔄 Trocas</button>
       <button class="nav-btn" data-tab="photos">📸 Fotos</button>
     </nav>
-
     <div class="anular-wrap">
       <button class="btn-danger" id="anulBtn">🗑️ Anular (ANUL_...)</button>
       <div style="font-size:11px;color:#6c757d;margin-top:6px;text-align:center">Apenas colaboradores autorizados</div>
@@ -132,32 +153,20 @@ th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;fon
     <div id="msg" class="notice hidden"></div>
 
     <div class="metrics">
-      <div class="metric"><span class="metric-label">Total</span><div class="metric-value" id="kTotal">0</div></div>
-      <div class="metric"><span class="metric-label">Valor</span><div class="metric-value" id="kValor">€0</div></div>
-      <div class="metric"><span class="metric-label">Transfers</span><div class="metric-value" id="kTrans">0</div></div>
-      <div class="metric"><span class="metric-label">Pendentes</span><div class="metric-value" id="kPend">0</div></div>
+      <div class="metric"><span class="metric-label">Devoluções</span><div class="metric-value" id="kTotal">0</div></div>
+      <div class="metric"><span class="metric-label">Valor total</span><div class="metric-value" id="kValor">€0</div></div>
+      <div class="metric"><span class="metric-label">Transfers pend.</span><div class="metric-value" id="kTrans">0</div></div>
+      <div class="metric"><span class="metric-label">Trocas pendentes</span><div class="metric-value" id="kTrocas">0</div></div>
     </div>
 
-    <!-- FORM -->
+    <!-- FORM DEVOLUÇÃO -->
     <section id="s-form" class="section">
       <form id="myForm">
         <div class="form-grid">
-          <div class="field">
-            <label>Nº Colaborador</label>
-            <input id="fColab" type="number" min="1" placeholder="Ex: 12" required>
-          </div>
-          <div class="field">
-            <label>Data</label>
-            <input id="fData" type="date" required>
-          </div>
-          <div class="field">
-            <label>Nº Encomenda</label>
-            <input id="fEncomenda" type="number" placeholder="Ex: 20260123" required>
-          </div>
-          <div class="field">
-            <label>Valor (€)</label>
-            <input id="fValor" type="number" step="0.01" min="0.01" placeholder="Ex: 14.99" required>
-          </div>
+          <div class="field"><label>Nº Colaborador</label><input id="fColab" type="number" min="1" placeholder="Ex: 12" required></div>
+          <div class="field"><label>Data</label><input id="fData" type="date" required></div>
+          <div class="field"><label>Nº Encomenda</label><input id="fEncomenda" type="number" placeholder="Ex: 20260123" required></div>
+          <div class="field"><label>Valor (€)</label><input id="fValor" type="number" step="0.01" min="0.01" placeholder="Ex: 14.99" required></div>
           <div class="field full">
             <label>Método de devolução</label>
             <select id="fMetodo" required>
@@ -169,14 +178,11 @@ th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;fon
               <option value="Outros">🔧 Outros</option>
             </select>
           </div>
-          <div class="field full hidden" id="fOutrosWrap">
-            <label>Descrição (Outros)</label>
-            <textarea id="fOutros" placeholder="Descreva o método..."></textarea>
-          </div>
+          <div class="field full hidden" id="fOutrosWrap"><label>Descrição (Outros)</label><textarea id="fOutros" placeholder="Descreva o método..."></textarea></div>
           <div class="field full">
             <label>Foto do comprovativo</label>
             <input id="fFoto" type="file" accept="image/*" capture="environment">
-            <small>📷 Tirar foto diretamente ou selecionar da galeria</small>
+            <small>📷 Tirar foto ou selecionar da galeria</small>
           </div>
         </div>
         <div id="fPreview" class="preview-area">Sem imagem selecionada</div>
@@ -198,15 +204,59 @@ th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;fon
       </div>
     </section>
 
-    <!-- TRANSFERS -->
+    <!-- TRANSFERÊNCIAS -->
     <section id="s-transfers" class="section hidden">
+      <div class="config-box" id="driveConfigBox">
+        <strong>⚙️ Configuração necessária</strong>
+        URL do Apps Script Web App (para upload de comprovativos para o Drive):<br>
+        <input id="appsScriptUrl" type="url" placeholder="https://script.google.com/macros/s/XXXX/exec" style="margin-top:8px;font-size:12px">
+        <button class="btn btn-primary" style="margin-top:8px" onclick="saveAppsScriptUrl()">💾 Guardar URL</button>
+        <div style="margin-top:8px;font-size:11px;color:#856404">Cole aqui o URL do Apps Script após publicar o ficheiro <strong>apps-script-upload.gs</strong> como Web App.</div>
+      </div>
       <div class="section-card">
-        <h2>Transferências bancárias pendentes</h2>
+        <h2>💳 Transferências bancárias</h2>
         <div id="transContainer" class="table-wrap"></div>
       </div>
     </section>
 
-    <!-- PHOTOS -->
+    <!-- TROCAS -->
+    <section id="s-trocas" class="section hidden">
+      <div class="section-card">
+        <div class="toolbar"><h2>🔄 Registar nova troca</h2></div>
+        <form id="trocaForm">
+          <div class="form-grid">
+            <div class="field"><label>Nº Colaborador</label><input id="tColab" type="number" min="1" placeholder="Ex: 12" required></div>
+            <div class="field"><label>Data</label><input id="tData" type="date" required></div>
+            <div class="field"><label>Nº Encomenda</label><input id="tEncomenda" type="number" placeholder="Ex: 20260123" required></div>
+            <div class="field"></div>
+            <div class="field"><label>CNP — produto devolvido</label><input id="tCnpDev" type="text" placeholder="Ex: 1234567" required></div>
+            <div class="field"><label>Quantidade devolvida</label><input id="tQtdDev" type="number" min="1" value="1" required></div>
+            <div class="field"><label>CNP — novo produto enviado</label><input id="tCnpNovo" type="text" placeholder="Ex: 7654321" required></div>
+            <div class="field"><label>Quantidade enviada</label><input id="tQtdNovo" type="number" min="1" value="1" required></div>
+            <div class="field full"><label>Motivo da troca</label><textarea id="tMotivo" placeholder="Descreva o motivo..." required></textarea></div>
+            <div class="field full">
+              <div class="check-row" onclick="document.getElementById('tStock').click();event.preventDefault()">
+                <input type="checkbox" id="tStock">
+                <label for="tStock">⚠️ Exige contagem de stock</label>
+              </div>
+            </div>
+          </div>
+          <div class="btn-group" style="margin-top:16px">
+            <button class="btn btn-primary" type="submit">💾 Registar troca</button>
+            <button class="btn" type="reset">🔄 Limpar</button>
+          </div>
+        </form>
+      </div>
+      <div class="section-card">
+        <div class="toolbar">
+          <h2>📋 Trocas registadas</h2>
+          <input class="search-input" id="searchTrocas" type="search" placeholder="🔍 Pesquisar...">
+        </div>
+        <div id="trocasContainer" class="table-wrap"></div>
+      </div>
+    </section>
+
+    <!-- FOTOS -->
     <section id="s-photos" class="section hidden">
       <div class="section-card">
         <h2>📸 Todos os comprovativos</h2>
@@ -216,58 +266,91 @@ th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;fon
   </main>
 </div>
 
+<!-- MODAL TERMINAR TROCA -->
+<div class="modal-overlay" id="modalTerminar">
+  <div class="modal-box">
+    <h3>✅ Terminar troca</h3>
+    <p style="font-size:13px;color:#6c757d;margin:0">Introduza o nº de colaborador para confirmar a conclusão da troca.</p>
+    <div class="field"><label>Nº Colaborador (fecho)</label><input id="modalColab" type="number" placeholder="Ex: 05" min="1"></div>
+    <div class="check-row" id="comunicadoRow" onclick="document.getElementById('modalComunicado').click();event.preventDefault()">
+      <input type="checkbox" id="modalComunicado">
+      <label for="modalComunicado">📢 Comunicado de acerto de stock enviado</label>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-success" id="modalConfirm">✅ Confirmar</button>
+      <button class="btn" id="modalCancel">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import {initializeApp} from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {getFirestore,collection,addDoc,deleteDoc,doc,updateDoc,query,orderBy,onSnapshot,serverTimestamp} from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {getFirestore,collection,addDoc,deleteDoc,doc,updateDoc,query,orderBy,onSnapshot,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const cfg={apiKey:"AIzaSyAtROUYStFmWkfHeCkyAQkFU_6-rnHyWzc",authDomain:"devol-online.firebaseapp.com",projectId:"devol-online",storageBucket:"devol-online.firebasestorage.app",messagingSenderId:"190776212046",appId:"1:190776212046:web:7a9ddd9fa284d11df5a11f"};
 const app=initializeApp(cfg);
 const db=getFirestore(app);
 
-let refunds=[],transfers=[];
+let refunds=[],transfers=[],trocas=[],pendingTrocaId=null;
+let APPS_SCRIPT_URL=localStorage.getItem('appsScriptUrl')||'';
+
+// Mostrar/ocultar config box
+function updateConfigBox(){
+  const box=document.getElementById('driveConfigBox');
+  if(APPS_SCRIPT_URL){
+    box.style.display='none';
+  }else{
+    box.style.display='block';
+    document.getElementById('appsScriptUrl').value=APPS_SCRIPT_URL;
+  }
+}
+updateConfigBox();
+
+window.saveAppsScriptUrl=function(){
+  const v=document.getElementById('appsScriptUrl').value.trim();
+  if(!v||!v.startsWith('https://script.google.com')){
+    showMsg('URL inválido. Deve começar por https://script.google.com','error');return;
+  }
+  APPS_SCRIPT_URL=v;
+  localStorage.setItem('appsScriptUrl',v);
+  updateConfigBox();
+  showMsg('✅ URL do Apps Script guardado!','success');
+};
 
 // NAV
+const navTitles={form:'Nova devolução',list:'Histórico',transfers:'Transferências',trocas:'Trocas',photos:'Fotos'};
+const navSubs={form:'Preencha os dados abaixo',list:'Todas as devoluções registadas',transfers:'Controlo de transferências bancárias',trocas:'Registo e acompanhamento de trocas',photos:'Comprovativos guardados'};
+
 document.querySelectorAll('[data-tab]').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('[data-tab]').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.section').forEach(s=>s.classList.add('hidden'));
     document.getElementById('s-'+btn.dataset.tab).classList.remove('hidden');
-    const titles={form:'Nova devolução',list:'Histórico',transfers:'Transferências',photos:'Fotos'};
-    const subs={form:'Preencha os dados abaixo',list:'Todas as devoluções registadas',transfers:'Controlo de transferências',photos:'Comprovativos guardados'};
-    document.getElementById('pageTitle').textContent=titles[btn.dataset.tab];
-    document.getElementById('pageSub').textContent=subs[btn.dataset.tab];
+    document.getElementById('pageTitle').textContent=navTitles[btn.dataset.tab]||'';
+    document.getElementById('pageSub').textContent=navSubs[btn.dataset.tab]||'';
     document.getElementById('sidebar').classList.remove('open');
   });
 });
 
-// FORM
+// FORM DEVOLUÇÃO
 document.getElementById('fMetodo').addEventListener('change',e=>{
   document.getElementById('fOutrosWrap').classList.toggle('hidden',e.target.value!=='Outros');
 });
-
 document.getElementById('fFoto').addEventListener('change',function(){
   const file=this.files[0];
   if(!file){document.getElementById('fPreview').innerHTML='Sem imagem selecionada';return;}
   compressImage(file,300,225,0.7,url=>{
-    document.getElementById('fPreview').innerHTML=`<img src="${url}">`;
+    document.getElementById('fPreview').innerHTML='<img src="'+url+'">';
   });
 });
-
 document.getElementById('myForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  const btn=e.submitter;
-  btn.disabled=true;btn.textContent='A guardar...';
-
+  const btn=e.submitter;btn.disabled=true;btn.textContent='A guardar...';
   try{
     const file=document.getElementById('fFoto').files[0];
     let base64='';
-    if(file){
-      base64=await new Promise((res,rej)=>{
-        compressImage(file,1000,750,0.75,url=>res(url),rej);
-      });
-    }
-
+    if(file) base64=await new Promise((res,rej)=>compressImage(file,1000,750,0.75,url=>res(url),rej));
     const payload={
       colaboradorNumero:parseInt(document.getElementById('fColab').value),
       dataDevolucao:document.getElementById('fData').value,
@@ -278,38 +361,114 @@ document.getElementById('myForm').addEventListener('submit',async e=>{
       comprovativoBase64:base64,
       createdAt:serverTimestamp()
     };
-
     const ref=await addDoc(collection(db,'devolucoes_online'),payload);
-
     if(payload.metodoDevolucao==='Transferência Bancária'){
       await addDoc(collection(db,'transferencias_bancarias'),{
-        refundId:ref.id,
-        dataDevolucao:payload.dataDevolucao,
-        valor:payload.valorDevolvido,
-        recebido:false,
-        createdAt:serverTimestamp(),
-        updatedAt:serverTimestamp()
+        refundId:ref.id,dataDevolucao:payload.dataDevolucao,valor:payload.valorDevolvido,
+        recebido:false,comprovativoDriveUrl:'',comprovativoNome:'',
+        createdAt:serverTimestamp(),updatedAt:serverTimestamp()
       });
     }
-
     document.getElementById('myForm').reset();
     document.getElementById('fData').value=new Date().toISOString().split('T')[0];
     document.getElementById('fOutrosWrap').classList.add('hidden');
     document.getElementById('fPreview').innerHTML='Sem imagem selecionada';
     showMsg('✅ Devolução registada com sucesso!','success');
-  }catch(err){
-    showMsg('❌ Erro: '+err.message,'error');
-  }finally{
-    btn.disabled=false;btn.textContent='💾 Guardar devolução';
-  }
+  }catch(err){showMsg('❌ Erro: '+err.message,'error');}
+  finally{btn.disabled=false;btn.textContent='💾 Guardar devolução';}
 });
-
 document.getElementById('myForm').addEventListener('reset',()=>{
   setTimeout(()=>{
     document.getElementById('fData').value=new Date().toISOString().split('T')[0];
     document.getElementById('fOutrosWrap').classList.add('hidden');
     document.getElementById('fPreview').innerHTML='Sem imagem selecionada';
   },10);
+});
+
+// UPLOAD DRIVE
+window.uploadDrive=async function(tId,inputEl){
+  if(!APPS_SCRIPT_URL){showMsg('Configure primeiro o URL do Apps Script no separador Transferências','error');return;}
+  const file=inputEl.files[0];if(!file)return;
+  const statusEl=document.getElementById('us_'+tId);
+  statusEl.className='upload-status uploading';statusEl.textContent='⏳ A enviar para Drive...';
+  try{
+    if(file.size>10*1024*1024)throw new Error('Ficheiro demasiado grande (máx 10MB)');
+    const base64=await new Promise((res,rej)=>{
+      const reader=new FileReader();
+      reader.onload=()=>res(reader.result);
+      reader.onerror=rej;
+      reader.readAsDataURL(file);
+    });
+    const resp=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      body:JSON.stringify({fileBase64:base64,fileName:file.name,mimeType:file.type,transferId:tId})
+    });
+    const json=await resp.json();
+    if(!json.success)throw new Error(json.error||'Erro desconhecido');
+    await updateDoc(doc(db,'transferencias_bancarias',tId),{
+      comprovativoDriveUrl:json.fileUrl,
+      comprovativoDriveDirectUrl:json.directUrl,
+      comprovativoNome:file.name,
+      updatedAt:serverTimestamp()
+    });
+    statusEl.className='upload-status done';
+    statusEl.innerHTML='✅ Enviado — <a href="'+json.fileUrl+'" target="_blank" style="color:#155724">Ver no Drive</a>';
+  }catch(err){
+    statusEl.className='upload-status err';statusEl.textContent='❌ '+err.message;
+  }
+};
+
+// FORM TROCAS
+document.getElementById('tData').value=new Date().toISOString().split('T')[0];
+document.getElementById('trocaForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=e.submitter;btn.disabled=true;btn.textContent='A guardar...';
+  try{
+    await addDoc(collection(db,'trocas_online'),{
+      colaboradorNumero:parseInt(document.getElementById('tColab').value),
+      dataTroca:document.getElementById('tData').value,
+      numeroEncomenda:parseInt(document.getElementById('tEncomenda').value),
+      cnpDevolvido:document.getElementById('tCnpDev').value.trim(),
+      qtdDevolvida:parseInt(document.getElementById('tQtdDev').value),
+      cnpNovo:document.getElementById('tCnpNovo').value.trim(),
+      qtdNova:parseInt(document.getElementById('tQtdNovo').value),
+      motivo:document.getElementById('tMotivo').value.trim(),
+      exigeStock:document.getElementById('tStock').checked,
+      estado:'pendente',colaboradorFecho:null,comunicado:false,
+      createdAt:serverTimestamp(),updatedAt:serverTimestamp()
+    });
+    document.getElementById('trocaForm').reset();
+    document.getElementById('tData').value=new Date().toISOString().split('T')[0];
+    showMsg('✅ Troca registada!','success');
+  }catch(err){showMsg('❌ Erro: '+err.message,'error');}
+  finally{btn.disabled=false;btn.textContent='💾 Registar troca';}
+});
+
+// MODAL TERMINAR TROCA
+window.abrirModal=function(id){
+  pendingTrocaId=id;
+  const t=trocas.find(x=>x.id===id);
+  document.getElementById('modalColab').value='';
+  document.getElementById('modalComunicado').checked=false;
+  document.getElementById('comunicadoRow').style.display=t&&t.exigeStock?'flex':'none';
+  document.getElementById('modalTerminar').style.display='flex';
+};
+document.getElementById('modalCancel').addEventListener('click',()=>{
+  document.getElementById('modalTerminar').style.display='none';pendingTrocaId=null;
+});
+document.getElementById('modalConfirm').addEventListener('click',async()=>{
+  const colab=parseInt(document.getElementById('modalColab').value);
+  if(!colab||colab<1)return showMsg('Insira um nº de colaborador válido','error');
+  const comunicado=document.getElementById('modalComunicado').checked;
+  if(!pendingTrocaId)return;
+  try{
+    await updateDoc(doc(db,'trocas_online',pendingTrocaId),{
+      estado:comunicado?'comunicado':'terminado',
+      colaboradorFecho:colab,comunicado,updatedAt:serverTimestamp()
+    });
+    showMsg('✅ Troca terminada!','success');
+  }catch(err){showMsg('Erro: '+err.message,'error');}
+  document.getElementById('modalTerminar').style.display='none';pendingTrocaId=null;
 });
 
 // ANULAR
@@ -335,45 +494,90 @@ document.getElementById('exportBtn').addEventListener('click',()=>{
   const csv=rows.map(r=>r.join(';')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download='devolucoes_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
+  a.download='devolucoes_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 });
 
-// FIREBASE LISTENERS
+// FIREBASE
 onSnapshot(query(collection(db,'devolucoes_online'),orderBy('createdAt','desc')),snap=>{
   refunds=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderList();renderPhotos();updateMetrics();
 });
-
 onSnapshot(query(collection(db,'transferencias_bancarias'),orderBy('createdAt','desc')),snap=>{
   transfers=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderTransfers();updateMetrics();
 });
+onSnapshot(query(collection(db,'trocas_online'),orderBy('createdAt','desc')),snap=>{
+  trocas=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderTrocas();updateMetrics();
+});
 
-// RENDER
+// RENDERS
 function renderList(){
   const term=document.getElementById('searchInput').value.toLowerCase();
   const data=refunds.filter(r=>!term||String(r.numeroEncomenda).includes(term)||String(r.colaboradorNumero).includes(term)||r.metodoDevolucao.toLowerCase().includes(term));
-  if(!data.length){document.getElementById('listContainer').innerHTML='<div class="empty-state">Sem devoluções</div>';return;}
-  document.getElementById('listContainer').innerHTML=`<table><thead><tr><th>Encomenda</th><th>Data</th><th>Colab.</th><th>Valor</th><th>Método</th><th>Foto</th></tr></thead><tbody>${data.slice(0,100).map(r=>`<tr><td><strong>#${r.numeroEncomenda}</strong></td><td>${fmtDate(r.dataDevolucao)}</td><td>${r.colaboradorNumero}</td><td>€${r.valorDevolvido.toFixed(2)}</td><td><span class="badge">${r.metodoDevolucao}</span>${r.outrosDescricao?'<br><small>'+r.outrosDescricao+'</small>':''}</td><td>${r.comprovativoBase64?`<img src="${r.comprovativoBase64}" class="thumbnail" onclick="this.style.maxWidth=this.style.maxWidth?'':'300px'">` :'—'}</td></tr>`).join('')}</tbody></table>`;
+  if(!data.length){document.getElementById('listContainer').innerHTML='<div class="empty-state">Sem devoluções registadas</div>';return;}
+  const rows=data.slice(0,100).map(r=>'<tr><td><strong>#'+r.numeroEncomenda+'</strong></td><td>'+fmtDate(r.dataDevolucao)+'</td><td>'+r.colaboradorNumero+'</td><td>€'+r.valorDevolvido.toFixed(2)+'</td><td><span class="badge">'+r.metodoDevolucao+'</span>'+(r.outrosDescricao?'<br><small style="color:#6c757d">'+r.outrosDescricao+'</small>':'')+'</td><td>'+(r.comprovativoBase64?'<img src="'+r.comprovativoBase64+'" class="thumbnail" onclick="this.style.maxWidth=this.style.maxWidth?\'\':\' 300px\'">':'—')+'</td></tr>').join('');
+  document.getElementById('listContainer').innerHTML='<table><thead><tr><th>Encomenda</th><th>Data</th><th>Colab.</th><th>Valor</th><th>Método</th><th>Foto</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
 function renderTransfers(){
   if(!transfers.length){document.getElementById('transContainer').innerHTML='<div class="empty-state">Sem transferências</div>';return;}
-  document.getElementById('transContainer').innerHTML=`<table><thead><tr><th>Data</th><th>Valor</th><th>Estado</th><th></th></tr></thead><tbody>${transfers.map(t=>`<tr><td>${fmtDate(t.dataDevolucao)}</td><td>€${t.valor.toFixed(2)}</td><td><span class="${t.recebido?'status-recebido':'status-pendente'}">${t.recebido?'✅ Recebido':'⏳ Pendente'}</span></td><td><button class="btn ${t.recebido?'':'btn-success'}" onclick="toggleTrans('${t.id}',${t.recebido})">${t.recebido?'Desmarcar':'Marcar recebido'}</button></td></tr>`).join('')}</tbody></table>`;
+  const rows=transfers.map(t=>{
+    const hasDrive=t.comprovativoDriveUrl&&t.comprovativoDriveUrl.length>0;
+    const driveHtml='<div class="upload-area" onclick="document.getElementById(\'di_'+t.id+'\').click()">'
+      +'<input type="file" id="di_'+t.id+'" accept="image/*,application/pdf" capture="environment" onchange="uploadDrive(\''+t.id+'\',this)">'
+      +'<label for="di_'+t.id+'">📎 '+(hasDrive?'Substituir comprovativo':'Carregar comprovativo (foto/PDF)')+'</label>'
+      +'</div>'
+      +'<div id="us_'+t.id+'" class="upload-status'+(hasDrive?' done':'')+'">'
+      +(hasDrive?'✅ Enviado — <a href="'+t.comprovativoDriveUrl+'" target="_blank" style="color:#155724">Ver no Drive</a>':'')
+      +'</div>';
+    return '<tr>'
+      +'<td>'+fmtDate(t.dataDevolucao)+'</td>'
+      +'<td>€'+t.valor.toFixed(2)+'</td>'
+      +'<td><span class="'+(t.recebido?'status-recebido':'status-pendente')+'">'+(t.recebido?'✅ Recebido':'⏳ Pendente')+'</span></td>'
+      +'<td><button class="btn '+(t.recebido?'':'btn-success')+'" style="margin-bottom:8px" onclick="toggleTrans(\''+t.id+'\','+t.recebido+')">'+(t.recebido?'Desmarcar':'Marcar recebido')+'</button>'
+      +driveHtml+'</td>'
+      +'</tr>';
+  }).join('');
+  document.getElementById('transContainer').innerHTML='<table><thead><tr><th>Data</th><th>Valor</th><th>Estado</th><th>Ação / Comprovativo Drive</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function renderTrocas(){
+  const term=document.getElementById('searchTrocas').value.toLowerCase();
+  const data=trocas.filter(t=>!term||String(t.numeroEncomenda).includes(term)||t.cnpDevolvido.includes(term)||t.cnpNovo.includes(term));
+  if(!data.length){document.getElementById('trocasContainer').innerHTML='<div class="empty-state">Sem trocas registadas</div>';return;}
+  const rows=data.slice(0,100).map(t=>{
+    let eb='<span class="status-pendente-troca">⏳ Pendente</span>';
+    if(t.estado==='terminado')eb='<span class="status-terminado">✅ Terminado</span>';
+    if(t.estado==='comunicado')eb='<span class="status-comunicado">📢 Comunicado</span>';
+    const stockB=t.exigeStock?'<span class="badge badge-warn" style="margin-left:4px">⚠️ Stock</span>':'';
+    const fechoInfo=t.colaboradorFecho?'<div style="font-size:11px;color:#6c757d;margin-top:3px">Fecho: colab. '+t.colaboradorFecho+'</div>':'';
+    const acoes=t.estado==='pendente'?'<button class="btn btn-success" onclick="abrirModal(\''+t.id+'\')">✅ Terminar</button>':'—';
+    return '<tr>'
+      +'<td><strong>#'+t.numeroEncomenda+'</strong></td>'
+      +'<td>'+fmtDate(t.dataTroca)+'</td>'
+      +'<td>'+t.colaboradorNumero+'</td>'
+      +'<td>'+t.cnpDevolvido+' <small style="color:#6c757d">(×'+t.qtdDevolvida+')</small></td>'
+      +'<td>'+t.cnpNovo+' <small style="color:#6c757d">(×'+t.qtdNova+')</small></td>'
+      +'<td style="max-width:180px;white-space:normal;font-size:12px">'+t.motivo+'</td>'
+      +'<td>'+eb+stockB+fechoInfo+'</td>'
+      +'<td>'+acoes+'</td>'
+      +'</tr>';
+  }).join('');
+  document.getElementById('trocasContainer').innerHTML='<table><thead><tr><th>Encomenda</th><th>Data</th><th>Colab.</th><th>Devolvido</th><th>Novo</th><th>Motivo</th><th>Estado</th><th>Ação</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
 function renderPhotos(){
   const fotos=refunds.filter(r=>r.comprovativoBase64);
   if(!fotos.length){document.getElementById('photosContainer').innerHTML='<div class="empty-state">Sem fotos</div>';return;}
-  document.getElementById('photosContainer').innerHTML=fotos.slice(0,50).map(r=>`<div class="photo-card"><img src="${r.comprovativoBase64}" loading="lazy" onclick="this.style.maxHeight=this.style.maxHeight?'':'none'"><div class="photo-info"><p class="photo-num">#${r.numeroEncomenda}</p><p class="photo-meta">${fmtDate(r.dataDevolucao)} · €${r.valorDevolvido.toFixed(2)}</p></div></div>`).join('');
+  document.getElementById('photosContainer').innerHTML=fotos.slice(0,50).map(r=>'<div class="photo-card"><img src="'+r.comprovativoBase64+'" loading="lazy" onclick="this.style.maxHeight=this.style.maxHeight?\'\':\' none\'"><div class="photo-info"><p class="photo-num">#'+r.numeroEncomenda+'</p><p class="photo-meta">'+fmtDate(r.dataDevolucao)+' · €'+r.valorDevolvido.toFixed(2)+'</p></div></div>').join('');
 }
 
 function updateMetrics(){
   document.getElementById('kTotal').textContent=refunds.length;
-  document.getElementById('kValor').textContent='€'+refunds.reduce((s,r)=>s+r.valorDevolvido,0).toFixed(2);
-  document.getElementById('kTrans').textContent=refunds.filter(r=>r.metodoDevolucao==='Transferência Bancária').length;
-  document.getElementById('kPend').textContent=transfers.filter(t=>!t.recebido).length;
+  document.getElementById('kValor').textContent='€'+refunds.reduce((s,r)=>s+(r.valorDevolvido||0),0).toFixed(2);
+  document.getElementById('kTrans').textContent=transfers.filter(t=>!t.recebido).length;
+  document.getElementById('kTrocas').textContent=trocas.filter(t=>t.estado==='pendente').length;
 }
 
 window.toggleTrans=async(id,current)=>{
@@ -382,8 +586,8 @@ window.toggleTrans=async(id,current)=>{
 };
 
 document.getElementById('searchInput').addEventListener('input',renderList);
+document.getElementById('searchTrocas').addEventListener('input',renderTrocas);
 
-// UTILS
 function compressImage(file,maxW,maxH,quality,callback){
   const reader=new FileReader();
   reader.onload=ev=>{
@@ -404,15 +608,14 @@ function compressImage(file,maxW,maxH,quality,callback){
 
 function fmtDate(d){
   if(!d)return '-';
-  try{return new Date(d+'T12:00:00').toLocaleDateString('pt-PT');}
-  catch{return d;}
+  try{return new Date(d+'T12:00:00').toLocaleDateString('pt-PT');}catch{return d;}
 }
 
 function showMsg(text,type){
   const m=document.getElementById('msg');
   m.textContent=text;m.className='notice '+type;
   clearTimeout(showMsg._t);
-  showMsg._t=setTimeout(()=>m.className='notice hidden',4000);
+  showMsg._t=setTimeout(()=>m.className='notice hidden',4500);
 }
 
 document.getElementById('fData').value=new Date().toISOString().split('T')[0];
