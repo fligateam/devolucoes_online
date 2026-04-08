@@ -605,31 +605,56 @@ function renderList(){
   document.getElementById('listContainer').innerHTML='<table><thead><tr><th>Encomenda</th><th>Data</th><th>Colab.</th><th>Valor</th><th>Método</th><th>Foto</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
-function renderTransfers(){
-  if(!transfers.length){document.getElementById('transContainer').innerHTML='<div class="empty-state">Sem transferências</div>';return;}
-  const rows=transfers.map(t=>{
-    const hasDrive=t.comprovativoDriveUrl&&t.comprovativoDriveUrl.length>0;
-const rows = transfers.map(t => {
-  const hasDrive = t.comprovativoDriveUrl && t.comprovativoDriveUrl.length > 0;
-  const driveHtml = '<div class="upload-area">'
-    + '<label for="di_' + t.id + '" style="cursor:pointer;display:block;padding:8px">📎 ' + (hasDrive ? 'Substituir comprovativo' : 'Carregar comprovativo (foto/PDF)') + '</label>'
-    + '<input type="file" id="di_' + t.id + '" accept="image/*,application/pdf" capture="environment" style="display:none" onchange="uploadDrive(\'' + t.id + '\',this)">'
-    + '</div>'
-    + '<div id="us_' + t.id + '" class="upload-status' + (hasDrive ? ' done' : '') + '">'
-    + (hasDrive
-        ? '✅ Enviado — <a href="' + t.comprovativoDriveUrl + '" target="_blank" style="color:#155724">Ver no Drive</a>'
-          + ' <button class="btn" style="font-size:11px;padding:3px 8px;color:#dc3545;border-color:#dc3545;margin-left:6px" onclick="removeComprovativo(\'' + t.id + '\')">🗑️ Remover</button>'
-        : '')
-    + '</div>';
-    return '<tr>'
-      +'<td>'+fmtDate(t.dataDevolucao)+'</td>'
-      +'<td>€'+t.valor.toFixed(2)+'</td>'
-      +'<td><span class="'+(t.recebido?'status-recebido':'status-pendente')+'">'+(t.recebido?'✅ Recebido':'⏳ Pendente')+'</span></td>'
-      +'<td><button class="btn '+(t.recebido?'':'btn-success')+'" style="margin-bottom:8px" onclick="toggleTrans(\''+t.id+'\','+t.recebido+')">'+(t.recebido?'Desmarcar':'Marcar recebido')+'</button>'
-      +driveHtml+'</td>'
-      +'</tr>';
+function renderTransfers() {
+  if (!transfers.length) {
+    document.getElementById('transContainer').innerHTML = '<div class="empty-state">Sem transferências</div>';
+    return;
+  }
+
+  const rows = transfers.map(t => {
+    const hasDrive = t.comprovativoDriveUrl && t.comprovativoDriveUrl.length > 0;
+
+    const driveHtml =
+      '<div class="upload-area">' +
+        '<label for="di_' + t.id + '" style="cursor:pointer;display:block;padding:8px">' +
+          '📎 ' + (hasDrive ? 'Substituir comprovativo' : 'Carregar comprovativo (foto/PDF)') +
+        '</label>' +
+        '<input type="file" id="di_' + t.id + '" accept="image/*,application/pdf" capture="environment" style="display:none" onchange="uploadDrive(\'' + t.id + '\',this)">' +
+      '</div>' +
+      '<div id="us_' + t.id + '" class="upload-status' + (hasDrive ? ' done' : '') + '">' +
+        (
+          hasDrive
+            ? '✅ Enviado — <a href="' + t.comprovativoDriveUrl + '" target="_blank" style="color:#155724">Ver no Drive</a>' +
+              ' <button class="btn" style="font-size:11px;padding:3px 8px;color:#dc3545;border-color:#dc3545;margin-left:6px" onclick="removeComprovativo(\'' + t.id + '\')">🗑️ Remover</button>'
+            : ''
+        ) +
+      '</div>';
+
+    return '<tr>' +
+      '<td>' + fmtDate(t.dataDevolucao) + '</td>' +
+      '<td>€' + t.valor.toFixed(2) + '</td>' +
+      '<td><span class="' + (t.recebido ? 'status-recebido' : 'status-pendente') + '">' + (t.recebido ? '✅ Recebido' : '⏳ Pendente') + '</span></td>' +
+      '<td>' +
+        '<button class="btn ' + (t.recebido ? '' : 'btn-success') + '" style="margin-bottom:8px" onclick="toggleTrans(\'' + t.id + '\',' + t.recebido + ')">' +
+          (t.recebido ? 'Desmarcar' : 'Marcar recebido') +
+        '</button>' +
+        driveHtml +
+      '</td>' +
+    '</tr>';
   }).join('');
-  document.getElementById('transContainer').innerHTML='<table><thead><tr><th>Data</th><th>Valor</th><th>Estado</th><th>Ação / Comprovativo Drive</th></tr></thead><tbody>'+rows+'</tbody></table>';
+
+  document.getElementById('transContainer').innerHTML =
+    '<table>' +
+      '<thead>' +
+        '<tr>' +
+          '<th>Data</th>' +
+          '<th>Valor</th>' +
+          '<th>Estado</th>' +
+          '<th>Ação / Comprovativo Drive</th>' +
+        '</tr>' +
+      '</thead>' +
+      '<tbody>' + rows + '</tbody>' +
+    '</table>';
 }
 
 function renderTrocas(){
