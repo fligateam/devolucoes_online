@@ -291,22 +291,24 @@ import {getFirestore,collection,addDoc,deleteDoc,doc,updateDoc,query,orderBy,onS
 const cfg={apiKey:"AIzaSyAtROUYStFmWkfHeCkyAQkFU_6-rnHyWzc",authDomain:"devol-online.firebaseapp.com",projectId:"devol-online",storageBucket:"devol-online.firebasestorage.app",messagingSenderId:"190776212046",appId:"1:190776212046:web:7a9ddd9fa284d11df5a11f"};
 const app=initializeApp(cfg);
 const db=getFirestore(app);
-
+  
+const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbyeMHIQ15pxVUaBOBC8G-XiJOFLcRsu17Mw0RSCijjR1cKfXwqPFsvdvV_4044pGWRW/exec/exec';
+  
 let refunds=[],transfers=[],trocas=[],pendingTrocaId=null;
 let APPS_SCRIPT_URL=localStorage.getItem('appsScriptUrl')||'';
+DEFAULT_APPS_SCRIPT_URL;
 
 // Mostrar/ocultar config box
-function updateConfigBox(){
-  const box=document.getElementById('driveConfigBox');
-  const inp=document.getElementById('appsScriptUrl');
-  if(APPS_SCRIPT_URL){
-    box.style.background='#d4edda';box.style.borderColor='#28a745';
-    if(inp)inp.value=APPS_SCRIPT_URL;
-    const lbl=document.getElementById('urlSavedLabel');
-    if(lbl)lbl.style.display='block';
-  }else{
-    box.style.display='block';
-    if(inp)inp.value='';
+function updateConfigBox() {
+  const box = document.getElementById('driveConfigBox');
+  const input = document.getElementById('appsScriptUrl');
+
+  if (input) input.value = APPS_SCRIPT_URL || '';
+
+  if (APPS_SCRIPT_URL) {
+    box.style.display = 'none';
+  } else {
+    box.style.display = 'block';
   }
 }
 updateConfigBox();
