@@ -658,7 +658,7 @@ function renderList() {
     let fotoHtml = '';
     if (temFoto) {
       fotoHtml =
-        '<img src="' + r.comprovativoBase64 + '" class="thumbnail" onclick="this.style.maxWidth=this.style.maxWidth?\'\':\\' 300px\'">' +
+        '<img src="' + r.comprovativoBase64 + '" class="thumbnail" onclick="this.style.maxWidth=this.style.maxWidth?'':' 300px'">' +
         (
           !isTrans
             ? '<br><label for="rp_' + r.id + '" style="font-size:11px;color:#0b6b70;cursor:pointer;margin-top:4px;display:inline-block">🔄 Substituir</label>' +
@@ -823,7 +823,11 @@ function fmtDate(d){
   if(!d)return '-';
   try{return new Date(d+'T12:00:00').toLocaleDateString('pt-PT');}catch{return d;}
 }
-
+  
+window.toggleThumb = function(img) {
+  img.style.maxWidth = img.style.maxWidth ? '' : '300px';
+};
+  
 function showMsg(text,type){
   const m=document.getElementById('msg');
   m.textContent=text;m.className='notice '+type;
