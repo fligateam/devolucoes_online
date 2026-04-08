@@ -293,9 +293,7 @@ import {getFirestore,collection,addDoc,deleteDoc,doc,updateDoc,query,orderBy,onS
 const cfg={apiKey:"AIzaSyAtROUYStFmWkfHeCkyAQkFU_6-rnHyWzc",authDomain:"devol-online.firebaseapp.com",projectId:"devol-online",storageBucket:"devol-online.firebasestorage.app",messagingSenderId:"190776212046",appId:"1:190776212046:web:7a9ddd9fa284d11df5a11f"};
 const app=initializeApp(cfg);
 const db=getFirestore(app);
-  
-const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbyeMHIQ15pxVUaBOBC8G-XiJOFLcRsu17Mw0RSCijjR1cKfXwqPFsvdvV_4044pGWRW/exec/exec';
-  
+   
 let refunds=[],transfers=[],trocas=[],pendingTrocaId=null;
 const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeMHIQ15pxVUaBOBC8G-XiJOFLcRsu17Mw0RSCijjR1cKfXwqPFsvdvV_4044pGWRW/exec';
 let APPS_SCRIPT_URL = DEFAULT_APPS_SCRIPT_URL;
