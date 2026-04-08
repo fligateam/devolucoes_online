@@ -496,7 +496,19 @@ document.getElementById('anulBtn').addEventListener('click',async()=>{
     showMsg('✅ Devolução #'+num+' anulada','success');
   }catch(err){showMsg('Erro: '+err.message,'error');}
 });
-
+// Anular troca (adicionar depois da lógica das devoluções)
+if(code.startsWith('TROCA_')){
+  const num=parseInt(code.replace('TROCA_',''));
+  if(isNaN(num))return showMsg('Número de encomenda inválido','error');
+  const troca=trocas.find(x=>x.numeroEncomenda===num);
+  if(!troca)return showMsg('Troca #'+num+' não encontrada','error');
+  if(!confirm('Apagar troca #'+troca.numeroEncomenda+' ('+troca.cnpDevolvido+' → '+troca.cnpNovo+')?'))return;
+  try{
+    await deleteDoc(doc(db,'trocas_online',troca.id));
+    showMsg('✅ Troca #'+num+' anulada','success');
+  }catch(err){showMsg('Erro: '+err.message,'error');}
+  return;
+}
 // EXPORT
 document.getElementById('exportBtn').addEventListener('click',()=>{
   const rows=[['Data','Encomenda','Colaborador','Valor','Metodo'],...refunds.map(r=>[r.dataDevolucao,r.numeroEncomenda,r.colaboradorNumero,r.valorDevolvido.toFixed(2),r.metodoDevolucao+(r.outrosDescricao?' - '+r.outrosDescricao:'')])];
