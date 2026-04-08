@@ -656,14 +656,13 @@ function renderList() {
     const temFoto = r.comprovativoBase64 && r.comprovativoBase64.length > 0;
 
     let fotoHtml = '';
-   if (temFoto) {
-  fotoHtml = '<img src="' + r.comprovativoBase64 + '" class="thumbnail" onclick="toggleThumb(this)">';
-  if (!isTrans) {
-    fotoHtml +=
-      '<br><label for="rp_' + r.id + '" style="font-size:11px;color:#0b6b70;cursor:pointer;margin-top:4px;display:inline-block">🔄 Substituir</label>' +
-      '<input type="file" id="rp_' + r.id + '" accept="image/*" capture="environment" style="display:none" onchange="uploadRefundProof(\'' + r.id + '\',this)">';
-  }
-}
+    if (temFoto) {
+      fotoHtml = '<img src="' + r.comprovativoBase64 + '" class="thumbnail" onclick="toggleThumb(this)">';
+      if (!isTrans) {
+        fotoHtml +=
+          '<br><label for="rp_' + r.id + '" style="font-size:11px;color:#0b6b70;cursor:pointer;margin-top:4px;display:inline-block">🔄 Substituir</label>' +
+          '<input type="file" id="rp_' + r.id + '" accept="image/*" capture="environment" style="display:none" onchange="uploadRefundProof(\'' + r.id + '\',this)">';
+      }
     } else if (!isTrans) {
       fotoHtml =
         '<div class="upload-area" style="margin:0">' +
