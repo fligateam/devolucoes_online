@@ -210,7 +210,8 @@ th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;fon
         <strong>⚙️ Configuração necessária</strong>
         URL do Apps Script Web App (para upload de comprovativos para o Drive):<br>
         <input id="appsScriptUrl" type="url" placeholder="https://script.google.com/macros/s/XXXX/exec" style="margin-top:8px;font-size:12px">
-        <button class="btn btn-primary" style="margin-top:8px" onclick="saveAppsScriptUrl()">💾 Guardar URL</button>
+        <button class="btn btn-primary" style="margin-top:8px" id="btnSaveUrl">💾 Guardar URL</button>
+        <div id="urlSavedLabel" style="display:none;color:#155724;font-size:12px;margin-top:6px;font-weight:600">✅ URL guardado com sucesso!</div>
         <div style="margin-top:8px;font-size:11px;color:#856404">Cole aqui o URL do Apps Script após publicar o ficheiro <strong>apps-script-upload.gs</strong> como Web App.</div>
       </div>
       <div class="section-card">
@@ -297,25 +298,31 @@ let APPS_SCRIPT_URL=localStorage.getItem('appsScriptUrl')||'';
 // Mostrar/ocultar config box
 function updateConfigBox(){
   const box=document.getElementById('driveConfigBox');
+  const inp=document.getElementById('appsScriptUrl');
   if(APPS_SCRIPT_URL){
-    box.style.display='none';
+    box.style.background='#d4edda';box.style.borderColor='#28a745';
+    if(inp)inp.value=APPS_SCRIPT_URL;
+    const lbl=document.getElementById('urlSavedLabel');
+    if(lbl)lbl.style.display='block';
   }else{
     box.style.display='block';
-    document.getElementById('appsScriptUrl').value=APPS_SCRIPT_URL;
+    if(inp)inp.value='';
   }
 }
 updateConfigBox();
 
-window.saveAppsScriptUrl=function(){
+// URL SAVE — listener adicionado abaixo no DOMContentLoaded
+function saveAppsScriptUrl(){
   const v=document.getElementById('appsScriptUrl').value.trim();
-  if(!v||!v.startsWith('https://script.google.com')){
-    showMsg('URL inválido. Deve começar por https://script.google.com','error');return;
+  if(!v||!v.startsWith('https://')){
+    showMsg('URL inválido. Deve começar por https://','error');return;
   }
   APPS_SCRIPT_URL=v;
   localStorage.setItem('appsScriptUrl',v);
   updateConfigBox();
   showMsg('✅ URL do Apps Script guardado!','success');
-};
+}
+window.saveAppsScriptUrl=saveAppsScriptUrl;
 
 // NAV
 const navTitles={form:'Nova devolução',list:'Histórico',transfers:'Transferências',trocas:'Trocas',photos:'Fotos'};
@@ -619,6 +626,10 @@ function showMsg(text,type){
 }
 
 document.getElementById('fData').value=new Date().toISOString().split('T')[0];
+
+// Listener botão guardar URL
+document.getElementById('btnSaveUrl').addEventListener('click', saveAppsScriptUrl);
+
 </script>
 </body>
 </html>
