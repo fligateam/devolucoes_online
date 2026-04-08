@@ -477,6 +477,46 @@ window.removeComprovativo = async function(tId) {
     showMsg('❌ Erro ao remover: ' + err.message, 'error');
   }
 };
+  // ADICIONAR COMPROVATIVO A DEVOLUÇÃO EXISTENTE
+window.uploadRefundProof = async function(rId, inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+
+  const statusEl = document.getElementById('rps_' + rId);
+  if (statusEl) {
+    statusEl.className = 'upload-status uploading';
+    statusEl.textContent = '⏳ A comprimir e guardar...';
+  }
+  inputEl.disabled = true;
+
+  try {
+    if (file.size > 10 * 1024 * 1024) throw new Error('Ficheiro demasiado grande (máx 10MB)');
+
+    const base64 = await new Promise((res, rej) => {
+      compressImage(file, 1000, 750, 0.75, url => res(url), rej);
+    });
+
+    await updateDoc(doc(db, 'devolucoes_online', rId), {
+      comprovativoBase64: base64,
+      updatedAt: serverTimestamp()
+    });
+
+    if (statusEl) {
+      statusEl.className = 'upload-status done';
+      statusEl.textContent = '✅ Comprovativo guardado!';
+    }
+    showMsg('✅ Comprovativo adicionado com sucesso!', 'success');
+
+  } catch (err) {
+    if (statusEl) {
+      statusEl.className = 'upload-status err';
+      statusEl.textContent = '❌ ' + err.message;
+    }
+    showMsg('❌ Erro: ' + err.message, 'error');
+  } finally {
+    inputEl.disabled = false;
+  }
+};
 
 // FORM TROCAS
 document.getElementById('tData').value=new Date().toISOString().split('T')[0];
@@ -597,12 +637,70 @@ onSnapshot(query(collection(db,'trocas_online'),orderBy('createdAt','desc')),sna
 });
 
 // RENDERS
-function renderList(){
-  const term=document.getElementById('searchInput').value.toLowerCase();
-  const data=refunds.filter(r=>!term||String(r.numeroEncomenda).includes(term)||String(r.colaboradorNumero).includes(term)||r.metodoDevolucao.toLowerCase().includes(term));
-  if(!data.length){document.getElementById('listContainer').innerHTML='<div class="empty-state">Sem devoluções registadas</div>';return;}
-  const rows=data.slice(0,100).map(r=>'<tr><td><strong>#'+r.numeroEncomenda+'</strong></td><td>'+fmtDate(r.dataDevolucao)+'</td><td>'+r.colaboradorNumero+'</td><td>€'+r.valorDevolvido.toFixed(2)+'</td><td><span class="badge">'+r.metodoDevolucao+'</span>'+(r.outrosDescricao?'<br><small style="color:#6c757d">'+r.outrosDescricao+'</small>':'')+'</td><td>'+(r.comprovativoBase64?'<img src="'+r.comprovativoBase64+'" class="thumbnail" onclick="this.style.maxWidth=this.style.maxWidth?\'\':\' 300px\'">':'—')+'</td></tr>').join('');
-  document.getElementById('listContainer').innerHTML='<table><thead><tr><th>Encomenda</th><th>Data</th><th>Colab.</th><th>Valor</th><th>Método</th><th>Foto</th></tr></thead><tbody>'+rows+'</tbody></table>';
+function renderList() {
+  const term = document.getElementById('searchInput').value.toLowerCase();
+  const data = refunds.filter(r =>
+    !term ||
+    String(r.numeroEncomenda).includes(term) ||
+    String(r.colaboradorNumero).includes(term) ||
+    r.metodoDevolucao.toLowerCase().includes(term)
+  );
+
+  if (!data.length) {
+    document.getElementById('listContainer').innerHTML = '<div class="empty-state">Sem devoluções registadas</div>';
+    return;
+  }
+
+  const rows = data.slice(0, 100).map(r => {
+    const isTrans = r.metodoDevolucao === 'Transferência Bancária';
+    const temFoto = r.comprovativoBase64 && r.comprovativoBase64.length > 0;
+
+    let fotoHtml = '';
+    if (temFoto) {
+      fotoHtml =
+        '<img src="' + r.comprovativoBase64 + '" class="thumbnail" onclick="this.style.maxWidth=this.style.maxWidth?\'\':\\' 300px\'">' +
+        (
+          !isTrans
+            ? '<br><label for="rp_' + r.id + '" style="font-size:11px;color:#0b6b70;cursor:pointer;margin-top:4px;display:inline-block">🔄 Substituir</label>' +
+              '<input type="file" id="rp_' + r.id + '" accept="image/*" capture="environment" style="display:none" onchange="uploadRefundProof(\'' + r.id + '\',this)">'
+            : ''
+        );
+    } else if (!isTrans) {
+      fotoHtml =
+        '<div class="upload-area" style="margin:0">' +
+          '<label for="rp_' + r.id + '" style="cursor:pointer;display:block;padding:6px;font-size:12px">📎 Adicionar comprovativo</label>' +
+          '<input type="file" id="rp_' + r.id + '" accept="image/*" capture="environment" style="display:none" onchange="uploadRefundProof(\'' + r.id + '\',this)">' +
+        '</div>' +
+        '<div id="rps_' + r.id + '" class="upload-status"></div>';
+    } else {
+      fotoHtml = '<span style="font-size:12px;color:#6c757d">Ver transferências</span>';
+    }
+
+    return '<tr>' +
+      '<td><strong>#' + r.numeroEncomenda + '</strong></td>' +
+      '<td>' + fmtDate(r.dataDevolucao) + '</td>' +
+      '<td>' + r.colaboradorNumero + '</td>' +
+      '<td>€' + r.valorDevolvido.toFixed(2) + '</td>' +
+      '<td>' +
+        '<span class="badge">' + r.metodoDevolucao + '</span>' +
+        (r.outrosDescricao ? '<br><small style="color:#6c757d">' + r.outrosDescricao + '</small>' : '') +
+      '</td>' +
+      '<td>' + fotoHtml + '</td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('listContainer').innerHTML =
+    '<table>' +
+      '<thead><tr>' +
+        '<th>Encomenda</th>' +
+        '<th>Data</th>' +
+        '<th>Colab.</th>' +
+        '<th>Valor</th>' +
+        '<th>Método</th>' +
+        '<th>Foto</th>' +
+      '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+    '</table>';
 }
 
 function renderTransfers() {
