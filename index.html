@@ -406,7 +406,7 @@ window.uploadDrive = async function(tId, inputEl) {
   const statusEl = document.getElementById('us_' + tId);
   statusEl.className = 'upload-status uploading';
   statusEl.textContent = '⏳ A enviar para Drive...';
-  inputEl.disabled = true; // BLOQUEIA INPUT
+  inputEl.disabled = true;
   
   try {
     if (file.size > 10 * 1024 * 1024) throw new Error('Ficheiro demasiado grande (máx 10MB)');
@@ -418,15 +418,16 @@ window.uploadDrive = async function(tId, inputEl) {
       reader.readAsDataURL(file);
     });
     
+    // SEM headers JSON — usa FormData para evitar CORS
+    const formData = new FormData();
+    formData.append('fileBase64', base64);
+    formData.append('fileName', file.name);
+    formData.append('mimeType', file.type);
+    formData.append('transferId', tId);
+    
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        fileBase64: base64,
-        fileName: file.name,
-        mimeType: file.type,
-        transferId: tId
-      })
+      body: formData  // SEM Content-Type header
     });
     
     const json = await resp.json();
@@ -435,8 +436,9 @@ window.uploadDrive = async function(tId, inputEl) {
       throw new Error(json.error || 'Erro desconhecido');
     }
     
+    // ATUALIZA FIREBASE
     await updateDoc(doc(db, 'transferencias_bancarias', tId), {
-      comprovativoDriveUrl: json.fileUrl || json.fileId ? ('https://drive.google.com/file/d/' + json.fileId + '/view') : '',
+      comprovativoDriveUrl: json.fileUrl || ('https://drive.google.com/file/d/' + json.fileId + '/view'),
       comprovativoDriveDirectUrl: json.directUrl,
       comprovativoNome: file.name,
       updatedAt: serverTimestamp()
@@ -449,7 +451,7 @@ window.uploadDrive = async function(tId, inputEl) {
     statusEl.className = 'upload-status err';
     statusEl.textContent = '❌ ' + err.message;
   } finally {
-    inputEl.disabled = false; // REATIVA INPUT
+    inputEl.disabled = false;
   }
 };
 
