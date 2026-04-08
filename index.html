@@ -236,10 +236,12 @@ th{background:#f8f9fa;font-weight:600;color:#6c757d;text-transform:uppercase;fon
             <div class="field"><label>Quantidade enviada</label><input id="tQtdNovo" type="number" min="1" value="1" required></div>
             <div class="field full"><label>Motivo da troca</label><textarea id="tMotivo" placeholder="Descreva o motivo..." required></textarea></div>
             <div class="field full">
-              <div class="check-row" onclick="document.getElementById('tStock').click()"
-                <input type="checkbox" id="tStock">
-                <label for="tStock">⚠️ Exige contagem de stock</label>
-              </div>
+<div class="field full">
+  <label class="check-row" for="tStock">
+    <input type="checkbox" id="tStock">
+    <span>⚠️ Exige contagem de stock</span>
+  </label>
+</div>
             </div>
           </div>
           <div class="btn-group" style="margin-top:16px">
@@ -442,7 +444,7 @@ document.getElementById('trocaForm').addEventListener('submit',async e=>{
       cnpNovo:document.getElementById('tCnpNovo').value.trim(),
       qtdNova:parseInt(document.getElementById('tQtdNovo').value),
       motivo:document.getElementById('tMotivo').value.trim(),
-      exigeStock:document.getElementById('tStock').checked,
+      exigeStock: !!document.getElementById('tStock')?.checked,
       estado:'pendente',colaboradorFecho:null,comunicado:false,
       createdAt:serverTimestamp(),updatedAt:serverTimestamp()
     });
